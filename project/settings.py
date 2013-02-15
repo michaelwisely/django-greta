@@ -1,5 +1,9 @@
 import os
 
+SETTINGS_DIR = os.path.dirname(__file__)
+BUILDOUT_DIR = os.path.dirname(SETTINGS_DIR)
+VAR_DIR = os.path.join(BUILDOUT_DIR, "var")
+
 # If a secret_settings file isn't defined, open a new one and save a
 # SECRET_KEY in it. Then import it.
 try:
@@ -18,9 +22,6 @@ except ImportError:
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = ['--cover-package=greta']
 
-
-BUILDOUT_DIR = os.path.dirname(os.path.dirname(__file__))
-VAR_DIR = os.path.join(BUILDOUT_DIR, "var")
 
 ADMINS = (
     # empty
@@ -49,8 +50,12 @@ STATIC_ROOT = os.path.join(VAR_DIR, "static")
 STATIC_URL = '/static/'
 ADMIN_MEDIA_PREFIX = '/static/admin/'
 
+FIXTURE_DIRS = (
+    os.path.join(SETTINGS_DIR, "fixtures"),
+)
+
 STATICFILES_DIRS = (
-    # empty
+    os.path.join(SETTINGS_DIR, "static"),
 )
 
 STATICFILES_FINDERS = (
@@ -77,7 +82,26 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(__file__), "templates"),
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.contrib.messages.context_processors.messages',
+
+    # for django-admin-tools
+    'django.core.context_processors.request',
+)
+
 INSTALLED_APPS = (
+    # Django Admin Tools
+    'admin_tools',
+    'admin_tools.theming',
+    'admin_tools.menu',
+    'admin_tools.dashboard',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -86,7 +110,12 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # django-crispy-forms
+    'crispy_forms',
+
+    'django_extensions',
     'django_nose',
+
     'greta',
 )
 
