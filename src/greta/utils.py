@@ -9,12 +9,14 @@ class Commiterator(object):
         command = ['git', 'log', '--format=%H',
                    "--skip={0}".format(skip),
                    "--max-count={0}".format(max_count)]
-        git_log = subprocess.Popen(command, stdout=subprocess.PIPE,
+        git_log = subprocess.Popen(command,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
                                    cwd=repo.path)
         stdout, stderr = git_log.communicate()
 
         if stderr:
-            logger.warning(stderr)
+            logger.warning("Git log error: %s", stderr)
 
         self.commit_shas = stdout.splitlines()
         self.repo = repo
