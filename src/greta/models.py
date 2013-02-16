@@ -4,6 +4,7 @@ from django.conf import settings
 from django.dispatch import receiver
 
 from .validators import repo_name_validator
+from .utils import Commiterator
 
 from dulwich.repo import Repo as DulwichRepo
 
@@ -64,6 +65,9 @@ class Repository(models.Model):
 
     def get_tree(self, ref, tree_path=''):
         return self._subtree(self.repo[self.repo[ref].tree], tree_path)
+
+    def get_log(self, start=0, stop=-1):
+        return Commiterator(self.repo, start, stop)
 
 
 @receiver(post_save, sender=Repository)
