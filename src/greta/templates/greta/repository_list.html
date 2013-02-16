@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block page-header%}
+  <div class="page-header">
+    <h1>Repositories</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% for repo in repos %}
+    {% if forloop.first %}
+      <ul>
+    {% endif %}
+
+    <li>{{repo.path}}</li>
+
+    {% if forloop.last %}
+      </ul>
+    {% endif %}
+
+  {% empty %}
+    <h2>No repos, yet.</h2>
+  {% endfor %}
+{% endblock %}
