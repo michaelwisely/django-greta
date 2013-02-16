@@ -1,11 +1,16 @@
 from django.db import models
+from django.db.models.signals import post_save
 from django.conf import settings
+from django.dispatch import receiver
 
 from .validators import repo_name_validator
 
 from dulwich.repo import Repo as DulwichRepo
 
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def path_to_list(path):
@@ -16,8 +21,9 @@ def path_to_list(path):
 
 
 class Repository(models.Model):
-    root_dir = settings.GRETA_ROOT_DIR
-    repo_name = models.CharField(max_length=100,
+    class Meta:
+        verbose_name_plural = 'Repositories'
+    repo_name = models.CharField(max_length=100, unique=True,
                                  validators=[repo_name_validator])
 
     def __init__(self, *args, **kwargs):
@@ -26,7 +32,7 @@ class Repository(models.Model):
 
     @property
     def path(self):
-        return os.path.join(self.root_dir, self.repo_name)
+        return os.path.join(settings.GRETA_ROOT_DIR, self.repo_name)
 
     @property
     def repo(self):
@@ -58,3 +64,13 @@ class Repository(models.Model):
 
     def get_tree(self, ref, tree_path=''):
         return self._subtree(self.repo[self.repo[ref].tree], tree_path)
+
+
+@receiver(post_save, sender=Repository)
+def create_on_disk_repository(sender, instance, created, **kwargs):
+    if created:
+        if not os.path.exists(instance.path):
+            os.mkdir(instance.path)
+            logger.info("Created path for repo at %s", instance.path)
+        DulwichRepo.init(instance.path)
+        logger.info("Initialized repo at %s", instance.path)
