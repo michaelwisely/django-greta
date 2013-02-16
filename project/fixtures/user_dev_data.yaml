@@ -1,0 +1,15 @@
+- fields:
+    date_joined: 2013-02-16 10:40:57.300797
+    email: none@none.com
+    first_name: ''
+    groups: []
+    is_active: true
+    is_staff: true
+    is_superuser: true
+    last_login: 2013-02-16 10:40:57.300797
+    last_name: ''
+    password: pbkdf2_sha256$10000$roDO8KxhvHGt$vVmllMikPWC1gRCQvyl1PMYVFb/GuYfqZPA2QnnZlMU=
+    user_permissions: []
+    username: superuser
+  model: auth.user
+  pk: 1

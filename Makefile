@@ -12,6 +12,12 @@ bin/buildout: bootstrap.py
 bootstrap.py:
 	wget $(BOOTSTRAP_URL)
 
+# Destroys existing test database and creates a new one
+db:
+	rm -f var/db/*.db
+	python bin/django syncdb --noinput
+	python bin/django loaddata project/fixtures/*_dev_data.yaml
+
 clean:
 	find ./ -name *.pyc -delete
 
