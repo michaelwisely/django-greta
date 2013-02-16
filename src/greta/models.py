@@ -12,8 +12,7 @@ def path_to_list(path):
     head, tail = os.path.split(path)
     if head in ('', '/') and tail == '':
         return ()
-    return path_split(head) + (tail,)
-
+    return path_to_list(head) + (tail,)
 
 
 class Repository(models.Model):
@@ -59,5 +58,3 @@ class Repository(models.Model):
 
     def get_tree(self, ref, tree_path=''):
         return self._subtree(self.repo[self.repo[ref].tree], tree_path)
-
-
