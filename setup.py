@@ -13,5 +13,6 @@ setup(name="django-greta",
                         'PyYAML',
                         'pygments',
                         'dulwich>=0.8.6',
+                        'factory_boy',
                         ],
       )
