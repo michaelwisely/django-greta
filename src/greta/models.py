@@ -31,6 +31,13 @@ class Repository(models.Model):
         self._dulwich_repo = None
         super(Repository, self).__init__(*args, **kwargs)
 
+    def __unicode__(self):
+        return unicode(self.repo_name)
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('repo_detail', (), {'pk': self.pk})
+
     @property
     def path(self):
         return os.path.join(settings.GRETA_ROOT_DIR, self.repo_name)
