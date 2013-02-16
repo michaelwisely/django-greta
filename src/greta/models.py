@@ -24,6 +24,7 @@ def path_to_list(path):
 class Repository(models.Model):
     class Meta:
         verbose_name_plural = 'Repositories'
+    default_branch = models.CharField(max_length=30, default="master")
     repo_name = models.CharField(max_length=100, unique=True,
                                  validators=[repo_name_validator])
 
@@ -83,5 +84,12 @@ def create_on_disk_repository(sender, instance, created, **kwargs):
         if not os.path.exists(instance.path):
             os.mkdir(instance.path)
             logger.info("Created path for repo at %s", instance.path)
-        DulwichRepo.init(instance.path)
-        logger.info("Initialized repo at %s", instance.path)
+            DulwichRepo.init(instance.path)
+            logger.info("Initialized repo at %s", instance.path)
+        else:
+            logger.info("Path exists for repo at %s", instance.path)
+            try:
+                DulwichRepo(instance.path)
+                logger.info("Path at %s is a valid git repo", instance.path)
+            except NotGitRepository:
+                logger.error("Path at %s is NOT a git repo", instance.path)
