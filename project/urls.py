@@ -11,6 +11,7 @@ urlpatterns = patterns(
 
     url(r'', include(greta.urls)),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin_tools/', include('admin_tools.urls')),
     )
 
 if settings.DEBUG:
