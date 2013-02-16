@@ -18,6 +18,8 @@ except ImportError:
     from secret_settings import *
 
 
+GRETA_ROOT_DIR = os.path.join(VAR_DIR, "repos")
+
 # Testing settings
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = ['--cover-package=greta']
