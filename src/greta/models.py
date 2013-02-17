@@ -77,6 +77,9 @@ class Repository(models.Model):
     def tags(self):
         return self._filter_branch('refs/tags/')
 
+    def get_commit(self, ref):
+        return self.repo[self.full_ref(ref)]
+
     def _subtree(self, tree, tree_path=''):
         tree_dict = dict((path, self.repo[sha])
                          for _, path, sha in tree.entries())
