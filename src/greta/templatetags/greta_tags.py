@@ -1,5 +1,7 @@
 from django import template
 from django.template.defaultfilters import stringfilter
+from django.utils.safestring import mark_safe
+from django.utils.html import escape
 
 import dulwich
 import markdown
@@ -36,11 +38,13 @@ def committer(value):
 @stringfilter
 def commit_message(value):
     try:
+        value = escape(value)
         title, _, body = value.partition('\n')
-        return "<h4>{0}</h4> {1}".format(title, markdown.markdown(body))
+        message = "<h4>{0}</h4> {1}".format(title, markdown.markdown(body))
+        return mark_safe(message)
     except:
         print "Caught an exception"
-        return value
+    return value
 
 
 @register.filter
