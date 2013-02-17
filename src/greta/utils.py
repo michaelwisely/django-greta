@@ -1,4 +1,6 @@
 import subprocess
+import mimetypes
+import re
 
 import logging
 logger = logging.getLogger(__name__)
@@ -35,3 +37,33 @@ class Commiterator(object):
     def __iter__(self):
         for commit in self.commit_shas:
             yield self.repo[commit]
+
+
+PRINTABLE_CHARS = re.compile(r'(\n|\r|\t|[\x20-\x7e])')
+NULL_CHAR = re.compile(r'[\x00]')
+
+
+def is_binary(string):
+    if string == "":
+        return False
+
+    # If it contains a NULL, it's binary.
+    if NULL_CHAR.search(string) is not None:
+        return True
+
+    # Count the number of printable characters
+    _, num_printable = PRINTABLE_CHARS.subn('', string)
+
+    # If less than 75% of the characters are printable, it's binary.
+    if float(num_printable) / len(string) < 0.75:
+        return True
+
+    return False
+
+
+def image_mimetype(path):
+    mimetype, _ = mimetypes.guess_type(path)
+    if mimetype is not None:
+        if mimetype.startswith('image/'):
+            return mimetype
+    return None
