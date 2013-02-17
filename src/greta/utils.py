@@ -26,7 +26,7 @@ def archive_directory(path, archive_name=None):
         archive_name = "{0}.tar.gz".format(time_filename())
     archive_path = os.path.join(settings.GRETA_ARCHIVE_DIR, archive_name)
     with tarfile.open(archive_path, "w:gz") as tar:
-        tar.add(path)
+        tar.add(path, arcname=os.path.basename(path))
     shutil.rmtree(path)
 
 
