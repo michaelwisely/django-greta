@@ -1,6 +1,7 @@
 from django.views.generic import RedirectView, ListView, DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 from guardian.mixins import PermissionRequiredMixin
 
@@ -45,7 +46,10 @@ class RepositoryDetail(GretaMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(RepositoryDetail, self).get_context_data(**kwargs)
-        context['log'] = self.object.get_log(ref=self.kwargs['ref'])
+        try:
+            context['log'] = self.object.get_log(ref=self.kwargs['ref'])
+        except KeyError:
+            raise Http404("Bad ref")
         return context
 
 
@@ -54,6 +58,9 @@ class CommitDetail(RepositoryDetail):
 
     def get_context_data(self, **kwargs):
         context = super(CommitDetail, self).get_context_data(**kwargs)
-        context['changes'] = self.object.show(self.kwargs['ref'])
-        context['commit'] = self.object.get_commit(self.kwargs['ref'])
+        try:
+            context['changes'] = self.object.show(self.kwargs['ref'])
+            context['commit'] = self.object.get_commit(self.kwargs['ref'])
+        except KeyError:
+            raise Http404("Bad ref")
         return context
