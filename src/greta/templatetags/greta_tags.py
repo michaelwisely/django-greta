@@ -29,6 +29,7 @@ def committer(value):
         return value
     return match.group('committer').strip()
 
+
 @register.filter
 @stringfilter
 def commit_message(value):
@@ -38,3 +39,25 @@ def commit_message(value):
     except:
         print "Caught an exception"
         return value
+
+
+@register.filter
+@stringfilter
+def pretty_ref(value):
+    if value.startswith('refs/heads/'):
+        value = value[11:]
+    if value.startswith('refs/tags/'):
+        value = format(value[10:])
+    return value
+
+
+@register.filter
+@stringfilter
+def is_branch(value):
+    return value.startswith('refs/heads/')
+
+
+@register.filter
+@stringfilter
+def is_tag(value):
+    return value.startswith('refs/tags/')

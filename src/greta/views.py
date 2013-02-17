@@ -23,21 +23,22 @@ class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
         self.kwargs = kwargs
         return super(GretaMixin, self).dispatch(*args, **kwargs)
 
-    def update_branch(self, new_branch):
-        default_branch = self.object.default_branch
-        current_branch = self.request.session.get('current_branch',
-                                                  default_branch)
-        if new_branch in (self.object.branches + self.object.tags):
-            current_branch = new_branch
-        self.request.session['current_branch'] = current_branch
+    def update_ref(self):
+        default_ref = 'refs/heads/' + self.object.default_branch
+        current_ref = self.request.session.get('current_ref', default_ref)
+
+        new_ref = self.request.GET.get('ref', None)
+
+        if new_ref in self.object.repo.get_refs():
+            current_ref = new_ref
+
+        self.request.session['current_ref'] = current_ref
 
     def get_context_data(self, **kwargs):
         context = super(GretaMixin, self).get_context_data(**kwargs)
 
-        # add current_branch to user's session
-        new_branch = self.request.GET.get('branch', None)
-        if new_branch:
-            self.update_branch(new_branch)
+        # add current_ref and ref_type to user's session
+        self.update_ref()
 
         # Add ref to contect
         context['ref'] = self.kwargs['ref']
@@ -53,8 +54,11 @@ class RepositoryList(ListView):
 
 class RedirectToDefaultBranch(RedirectView):
     def get_redirect_url(self, **kwargs):
+        try:
+            self.request.session.pop('current_ref')
+        except KeyError:
+            pass
         repo = get_object_or_404(Repository, pk=self.kwargs['pk'])
-        self.request.session['current_branch'] = repo.default_branch
         return repo.get_absolute_url()
 
 
