@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns, url
 
 from .views import (RepositoryList, RedirectToDefaultBranch, RepositoryDetail,
-                    CommitDetail)
+                    CommitDetail, TreeDetail)
 
 
 urlpatterns = patterns(
@@ -12,9 +12,9 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/$',
         RedirectToDefaultBranch.as_view(),
         name='repo_detail'),
-    # url(r'^(?P<pk>\d+)/(?P<ref>.+)/tree/(?P<path>.+)/$',
-    #     RepositoryDetail.as_view(),
-    #     name='tree_detail'),
+    url(r'^(?P<pk>\d+)/(?P<ref>.+)/tree/(?P<path>.*)$',
+        TreeDetail.as_view(),
+        name='tree_detail'),
     # url(r'^(?P<pk>\d+)/(?P<ref>.+)/blob/(?P<path>.+)/$',
     #     RepositoryDetail.as_view(),
     #     name='blob_detail'),

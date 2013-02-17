@@ -1,6 +1,7 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 
+import dulwich
 import markdown
 import datetime
 import re
@@ -61,3 +62,13 @@ def is_branch(value):
 @stringfilter
 def is_tag(value):
     return value.startswith('refs/tags/')
+
+
+@register.filter
+def is_tree(value):
+    return isinstance(value, dulwich.repo.Tree)
+
+
+@register.filter
+def is_blob(value):
+    return isinstance(value, dulwich.repo.Blob)

@@ -85,3 +85,17 @@ class CommitDetail(RepositoryDetail):
         except KeyError:
             raise Http404("Bad ref")
         return context
+
+
+class TreeDetail(RepositoryDetail):
+    template_name = "greta/tree_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(TreeDetail, self).get_context_data(**kwargs)
+        try:
+            context['tree'] = self.object.get_tree(self.kwargs['ref'],
+                                                   self.kwargs['path'])
+            context['commit'] = self.object.get_commit(self.kwargs['ref'])
+        except KeyError:
+            raise Http404("Bad ref")
+        return context
