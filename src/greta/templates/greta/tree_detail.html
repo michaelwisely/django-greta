@@ -1,0 +1,72 @@
+{% extends "greta/greta_base.html" %}
+{% load url from future %}
+{% load greta_tags %}
+
+{% block link %}
+<style>
+  #tree-paths a {
+    float: left;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  {% include "greta/_tabs.html" %}
+
+  <h2 id="tree-paths">
+    <a href="{% url 'tree_detail' pk=repo.pk ref=ref path=dir %}">
+      {{ repo.name }}/
+    </a>
+    {% for dir in path|split_path %}
+      {% if not forloop.last %}
+     <a href="{% url 'tree_detail' pk=repo.pk ref=ref path=dir %}">
+          {{ dir }}/
+        </a>
+        {% endif %}
+
+      {% if forloop.last %}
+        {{ dir }}
+        {% endif %}
+      {% endfor %}
+  </h2>
+
+  {% for item, object in tree.iteritems %}
+    {% if forloop.first %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>
+              Item
+            </th>
+            <th>
+              Object
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+      {% endif %}
+
+      <tr>
+        <td>
+          {% if object|is_tree %}
+            <a href="{% url 'tree_detail' pk=repo.pk ref=ref path=item %}">
+              <i class="icon-folder-open"></i> {{ item|basename }}/
+            </a>
+          {% endif %}
+          {% if object|is_blob %}
+            {{ item }}
+          {% endif %}
+        </td>
+        <td>
+          {{ object|truncatechars:30 }}
+        </td>
+      </tr>
+
+      {% if forloop.last %}
+        </tbody>
+      </table>
+    {% endif %}
+  {% empty %}
+    <h2>No files, yet.</h2>
+  {% endfor %}
+{% endblock %}
