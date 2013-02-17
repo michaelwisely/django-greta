@@ -2,11 +2,12 @@
 
 <ul class="nav nav-pills">
   <li {% if log %}class="active"{% endif %}>
-    <a href="{% url 'repo_detail' pk=repo.pk %}">
+    <a href="{% url 'repo_detail' pk=repo.pk ref=request.session.current_branch %}">
       Commit History
-      <span class="badge">{{ ref|truncatechars:10 }}</span>
+      <span class="badge">{{ request.session.current_branch|truncatechars:10 }}</span>
     </a>
   </li>
+
   <li {% if files %}class="active"{% endif %}>
     <a href="#">
       Files
@@ -21,8 +22,8 @@
       </a>
       <ul class="dropdown-menu">
         {% for branch in repo.branches %}
-          <li>
-            <a href="{% url 'repo_detail' pk=repo.pk ref=branch %}">
+          <li {% if request.session.current_branch == branch %}class="active"{% endif %}>
+            <a href="{% url 'repo_detail' pk=repo.pk ref=branch %}?branch={{ branch }}">
               {{ branch }}
             </a>
           </li>
@@ -41,8 +42,8 @@
       </a>
       <ul class="dropdown-menu">
         {% for tag in repo.tags %}
-          <li>
-            <a href="{% url 'repo_detail' pk=repo.pk ref=tag %}">
+          <li {% if request.session.current_branch == tag %}class="active"{% endif %}>
+            <a href="{% url 'repo_detail' pk=repo.pk ref=tag %}?branch={{ tag }}">
               {{ tag }}
             </a>
           </li>
