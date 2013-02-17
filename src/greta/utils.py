@@ -1,9 +1,34 @@
+from django.conf import settings
+
 import subprocess
 import mimetypes
+import datetime
+import tarfile
+import shutil
+import os
 import re
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def archive_directory(path, archive_name):
+    """Archives a directory at ``path`` using tar, names it
+    ``archive_name``, stores it in GRETA_ARCHIVE_DIR, and deletes the
+    original path at ``path``"""
+    archive_path = os.path.join(settings.GRETA_ARCHIVE_DIR, archive_name)
+    with tarfile.open(archive_path, "w:gz") as tar:
+        tar.add(path)
+    shutil.rmtree(path)
+
+
+def archive_repository(repo):
+    """Archives a repository using tar, stores it in
+    GRETA_ARCHIVE_DIR, and deletes the original repository from
+    GRETA_REPO_DIR"""
+    archive_name = "{0}-{1}-{2}.tar.gz".format(repo.id, repo.name,
+                                               datetime.datetime.now())
+    archive_directory(repo.path, archive_name)
 
 
 class Commiterator(object):
