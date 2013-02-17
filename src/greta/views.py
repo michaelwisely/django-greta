@@ -8,7 +8,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 class GretaContextMixin(object):
     def get_context_data(self, **kwargs):
         context = super(GretaContextMixin, self).get_context_data(**kwargs)
@@ -57,4 +56,5 @@ class CommitDetail(RepositoryDetail):
     def get_context_data(self, **kwargs):
         context = super(CommitDetail, self).get_context_data(**kwargs)
         context['changes'] = self.object.show(self.kwargs['ref'])
+        context['commit'] = self.object.get_commit(self.kwargs['ref'])
         return context
