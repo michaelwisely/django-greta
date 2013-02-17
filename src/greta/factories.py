@@ -26,7 +26,7 @@ class UserFactory(factory.Factory):
 class RepoFactory(factory.Factory):
     FACTORY_FOR = Repository
 
-    repo_name = factory.Sequence(lambda n: 'repository-{0}.git'.format(n))
+    name = factory.Sequence(lambda n: 'repository-{0}.git'.format(n))
 
     @classmethod
     def _prepare(cls, create, **kwargs):
