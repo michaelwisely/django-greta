@@ -80,9 +80,10 @@ class Repository(models.Model):
         tree_dict = dict((path, self.repo[sha])
                          for _, path, sha in tree.entries())
         if tree_path:
-            path_list = tree_path.split('/')
-            top_dir, tree_path = path_list[0], '/'.join(path_list[1:])
-            return self._subtree(tree_dict[top_dir], tree_path)
+            top_dir, _, tree_path = tree_path.partition(os.path.sep)
+            top_dir_subtree = self._subtree(tree_dict[top_dir], tree_path)
+            return dict((os.path.join(top_dir,path), obj)
+                        for path, obj in top_dir_subtree.iteritems())
         return tree_dict
 
     def get_tree(self, ref, tree_path=''):
