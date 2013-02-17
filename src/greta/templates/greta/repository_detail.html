@@ -1,15 +1,11 @@
-{% extends "base.html" %}
+{% extends "greta/greta_base.html" %}
 {% load url from future %}
 {% load greta_tags %}
 
-{% block page-header%}
-  <div class="page-header">
-    <h1>{{ bleep }}</h1>
-  </div>
-{% endblock %}
-
 {% block content %}
-  {% for commit in repo.get_log %}
+  {% include "greta/_tabs.html" %}
+
+  {% for commit in log %}
     {% if forloop.first %}
       <table class="table table-striped">
         <thead>
@@ -33,7 +29,7 @@
 
       <tr>
         <td>
-          <a href="{% url 'commit_detail' pk=repo.pk ref='master' %}">
+          <a href="{% url 'commit_detail' pk=repo.pk ref=commit.id %}">
             {{ commit.id|truncatechars:10 }}
           </a>
         </td>

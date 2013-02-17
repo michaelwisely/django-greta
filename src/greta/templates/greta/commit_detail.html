@@ -1,14 +1,10 @@
-{% extends "base.html" %}
+{% extends "greta/greta_base.html" %}
 {% load url from future %}
 {% load greta_tags %}
 
-{% block page-header%}
-  <div class="page-header">
-    <h1>Commits</h1>
-  </div>
-{% endblock %}
-
 {% block content %}
+  {% include "greta/_tabs.html" %}
 
+  {{ changes|safe }}
 
 {% endblock %}

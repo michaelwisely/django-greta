@@ -1,0 +1,26 @@
+{% load url from future%}
+
+<ul class="nav nav-pills">
+  <li {% if log %}class="active"{% endif %}>
+    {% if ref %}
+      <a href="{% url 'repo_detail' pk=repo.pk ref=ref %}">Commit History</a>
+    {% else %}
+      <a href="{% url 'repo_detail' pk=repo.pk %}">Commit History</a>
+    {% endif %}
+  </li>
+  <li {% if files %}class="active"{% endif %}>
+    <a href="#">
+      Files
+    </a>
+  </li>
+  <li {% if branches %}class="active"{% endif %}>
+    <a href="{% url 'branch_detail' pk=repo.pk %}">
+      Branches
+    </a>
+  </li>
+  <li {% if tags %}class="active"{% endif %}>
+    <a href="{% url 'tag_detail' pk=repo.pk %}">
+      Tags
+    </a>
+  </li>
+</ul>

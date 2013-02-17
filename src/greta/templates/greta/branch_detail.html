@@ -1,25 +1,27 @@
 {% extends "greta/greta_base.html" %}
 {% load url from future %}
+{% load greta_tags %}
 
-{% block page-header%}
-  <div class="page-header">
-    <h1>Repositories</h1>
-  </div>
-{% endblock %}
 
 {% block content %}
-  {% for repo in repos %}
+  {% include "greta/_tabs.html" with branches=1 %}
+
+  {% for branch in repo.branches %}
     {% if forloop.first %}
       <ul class="nav nav-tabs nav-stacked">
     {% endif %}
 
-    <li><a href="{{ repo.get_absolute_url }}">{{ repo }}</a></li>
+    <li>
+      <a href="{% url 'repo_detail' pk=repo.pk ref=branch %}">
+        {{ branch }}
+      </a>
+    </li>
 
     {% if forloop.last %}
       </ul>
     {% endif %}
 
   {% empty %}
-    <h2>No repos, yet.</h2>
+    <h2>No branches, yet.</h2>
   {% endfor %}
 {% endblock %}
