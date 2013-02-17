@@ -3,12 +3,19 @@ from django.db.models.signals import post_save
 from django.conf import settings
 from django.dispatch import receiver
 
+from pygments import highlight
+from pygments.lexers import DiffLexer
+from pygments.formatters import HtmlFormatter
+
 from .validators import repo_name_validator
 from .utils import Commiterator
 
 from dulwich.repo import Repo as DulwichRepo
+from dulwich.errors import NotGitRepository
 
 import os
+import subprocess
+import difflib
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,7 +32,7 @@ class Repository(models.Model):
     class Meta:
         verbose_name_plural = 'Repositories'
     default_branch = models.CharField(max_length=30, default="master")
-    repo_name = models.CharField(max_length=100, unique=True,
+    name = models.CharField(max_length=100, unique=True,
                                  validators=[repo_name_validator])
 
     def __init__(self, *args, **kwargs):
@@ -33,21 +40,29 @@ class Repository(models.Model):
         super(Repository, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
-        return unicode(self.repo_name)
+        return unicode(self.name)
 
     @models.permalink
     def get_absolute_url(self):
-        return ('repo_detail', (), {'pk': self.pk})
+        return ('repo_detail', (), {'pk': self.pk,
+                                    'ref': self.default_branch})
 
     @property
     def path(self):
-        return os.path.join(settings.GRETA_ROOT_DIR, self.repo_name)
+        return os.path.join(settings.GRETA_ROOT_DIR, self.name)
 
     @property
     def repo(self):
         if self._dulwich_repo is None:
             self._dulwich_repo = DulwichRepo(self.path)
         return self._dulwich_repo
+
+    def full_ref(self, ref):
+        if ref in self.branches:
+            ref = 'refs/heads/' + ref
+        elif ref in self.tags:
+            ref = 'refs/tags/' + ref
+        return ref
 
     def _filter_branch(self, ref_prefix=''):
         len_prefix = len(ref_prefix)
@@ -74,8 +89,26 @@ class Repository(models.Model):
     def get_tree(self, ref, tree_path=''):
         return self._subtree(self.repo[self.repo[ref].tree], tree_path)
 
-    def get_log(self, start=0, stop=-1):
-        return Commiterator(self.repo, start, stop)
+    def get_log(self, ref=None, start=0, stop=-1):
+        return Commiterator(self.repo, ref, start, stop)
+
+    def _run_git_command(self, command):
+        git = subprocess.Popen(command,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
+                               cwd=self.path)
+        stdout, stderr = git.communicate()
+
+        if stderr:
+            logger.error("Error running git command: %s", stderr)
+
+        return stdout
+
+    def show(self, ref):
+        ref = self.repo[self.full_ref(ref)].id
+        command = ['git', 'show', '--format=oneline', ref]
+        _, _, diff = self._run_git_command(command).partition('\n')
+        return highlight(diff, DiffLexer(), HtmlFormatter())
 
 
 @receiver(post_save, sender=Repository)
