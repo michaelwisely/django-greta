@@ -5,6 +5,33 @@
 {% block content %}
   {% include "greta/_tabs.html" %}
 
+  <div class="row">
+    <div class="span5 well">
+      <h3>Commit Details</h3> 
+      <table class="table">
+        <tbody>
+          <tr>
+            <td>Commit ID</td>
+            <td>{{ commit.id|truncatechars:10 }}</td>
+          </tr>
+          <tr>
+            <td>Commiter</td>
+            <td>{{ commit.committer|committer }}</td>
+          </tr>
+          <tr>
+            <td>Committed</td>
+            <td>{{ commit.commit_time|to_datetime }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="span6 well">
+      <h3>Commit Message</h3>      
+      <p>{{ commit.message|commit_message|safe }}</p>
+    </div>
+    
+  </div>
+
   {{ changes|safe }}
 
 {% endblock %}
