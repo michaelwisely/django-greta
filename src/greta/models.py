@@ -125,8 +125,8 @@ def create_on_disk_repository(sender, instance, created, **kwargs):
 
         if instance.forked_from is not None:
             # If we're forking a repo, clone from the parent
-            DulwichRepo.clone(instance.forked_from.path,
-                              mkdir=False, bare=True)
+            instance.forked_from.repo.clone(instance.path,
+                                            mkdir=False, bare=True)
             logger.info("Cloned repo to %s", instance.path)
         else:
             # If we're not forking a repo, just init a new one
