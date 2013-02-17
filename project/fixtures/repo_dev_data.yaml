@@ -1,0 +1,9 @@
+- fields: {default_branch: master, name: superuser_repo.git}
+  model: greta.repository
+  pk: 1
+- fields: {default_branch: master, name: alice_repo.git}
+  model: greta.repository
+  pk: 2
+- fields: {default_branch: master, name: bob_repo.git}
+  model: greta.repository
+  pk: 3

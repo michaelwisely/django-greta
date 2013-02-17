@@ -1,4 +1,19 @@
 - fields:
+    date_joined: 2013-02-16 20:48:17.640667
+    email: ''
+    first_name: ''
+    groups: []
+    is_active: true
+    is_staff: false
+    is_superuser: false
+    last_login: 2013-02-16 20:48:17.640649
+    last_name: ''
+    password: ''
+    user_permissions: []
+    username: AnonymousUser
+  model: auth.user
+  pk: -1
+- fields:
     date_joined: 2013-02-16 10:40:57.300797
     email: none@none.com
     first_name: ''
@@ -6,10 +21,40 @@
     is_active: true
     is_staff: true
     is_superuser: true
-    last_login: 2013-02-16 10:40:57.300797
+    last_login: 2013-02-16 20:48:29.921829
     last_name: ''
     password: pbkdf2_sha256$10000$roDO8KxhvHGt$vVmllMikPWC1gRCQvyl1PMYVFb/GuYfqZPA2QnnZlMU=
     user_permissions: []
     username: superuser
   model: auth.user
   pk: 1
+- fields:
+    date_joined: 2013-02-16 20:49:46.573916
+    email: ''
+    first_name: ''
+    groups: []
+    is_active: true
+    is_staff: false
+    is_superuser: false
+    last_login: 2013-02-16 20:49:46.573903
+    last_name: ''
+    password: pbkdf2_sha256$10000$mYJWEAdm4g60$e6guNrLiBQPatejcYGvhsybcdkaqR6165iTOxJNcttQ=
+    user_permissions: []
+    username: alice
+  model: auth.user
+  pk: 2
+- fields:
+    date_joined: 2013-02-16 20:49:57.963690
+    email: ''
+    first_name: ''
+    groups: []
+    is_active: true
+    is_staff: false
+    is_superuser: false
+    last_login: 2013-02-16 20:49:57.963675
+    last_name: ''
+    password: pbkdf2_sha256$10000$lAT0RR6Cm0Zt$l8o8u83ojngUbGnmbGEa1+vU/Ukc4d8rWQZ3FJxkSEI=
+    user_permissions: []
+    username: bob
+  model: auth.user
+  pk: 3

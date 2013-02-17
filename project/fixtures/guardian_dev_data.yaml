@@ -1,0 +1,6 @@
+- fields: {content_type: 12, object_pk: '2', permission: 37, user: 2}
+  model: guardian.userobjectpermission
+  pk: 1
+- fields: {content_type: 12, object_pk: '3', permission: 37, user: 3}
+  model: guardian.userobjectpermission
+  pk: 2

@@ -1,4 +1,11 @@
 from django.contrib import admin
+from guardian.admin import GuardedModelAdmin
+
 from .models import Repository
 
-admin.site.register(Repository)
+
+class RepositoryAdmin(GuardedModelAdmin):
+    pass
+
+
+admin.site.register(Repository, RepositoryAdmin)

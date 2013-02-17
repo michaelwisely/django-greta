@@ -31,6 +31,10 @@ def path_to_list(path):
 class Repository(models.Model):
     class Meta:
         verbose_name_plural = 'Repositories'
+        permissions = (
+            ('can_view_repository', 'Can view repository'),
+        )
+
     default_branch = models.CharField(max_length=30, default="master")
     name = models.CharField(max_length=100, unique=True,
                                  validators=[repo_name_validator])

@@ -15,5 +15,6 @@ setup(name="django-greta",
                         'dulwich>=0.8.6',
                         'factory_boy',
                         'markdown',
+                        'django-guardian',
                         ],
       )
