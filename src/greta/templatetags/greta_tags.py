@@ -3,6 +3,12 @@ from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
+from pygments import highlight
+from pygments.lexers import guess_lexer_for_filename, TextLexer
+from pygments.formatters import HtmlFormatter
+from pygments.util import ClassNotFound
+
+import mimetypes
 import dulwich
 import markdown
 import datetime
@@ -95,3 +101,12 @@ def dirname(value):
 @stringfilter
 def split_path(value):
     return value.split(os.path.sep)
+
+
+@register.filter
+def pygmentize_blob(value, path):
+    try:
+        lexer = guess_lexer_for_filename(path, value)
+    except ClassNotFound:
+        lexer = TextLexer()
+    return mark_safe(highlight(value, lexer, HtmlFormatter()))
