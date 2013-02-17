@@ -15,7 +15,6 @@ from dulwich.errors import NotGitRepository
 
 import os
 import subprocess
-import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -118,8 +117,7 @@ def create_on_disk_repository(sender, instance, created, **kwargs):
         if os.path.exists(instance.path):
             # If the repository exists, archive it
             logger.warning("Path %s exists. Archiving it.", instance.path)
-            archive_directory(instance.path,
-                              "{0}.tar.gz".format(datetime.datetime.now()))
+            archive_directory(instance.path)
 
         # Create the path for the repository
         os.mkdir(instance.path)
