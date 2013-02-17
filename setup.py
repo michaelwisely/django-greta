@@ -14,5 +14,6 @@ setup(name="django-greta",
                         'pygments',
                         'dulwich>=0.8.6',
                         'factory_boy',
+                        'markdown',
                         ],
       )

@@ -1,6 +1,7 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 
+import markdown
 import datetime
 import re
 
@@ -27,3 +28,13 @@ def committer(value):
     if match is None:
         return value
     return match.group('committer').strip()
+
+@register.filter
+@stringfilter
+def commit_message(value):
+    try:
+        title, _, body = value.partition('\n')
+        return "<h4>{0}</h4> {1}".format(title, markdown.markdown(body))
+    except:
+        print "Caught an exception"
+        return value
