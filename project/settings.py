@@ -39,6 +39,13 @@ DATABASES = {
     }
 }
 
+# For Django guardian.
+ANONYMOUS_USER_ID = -1
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
+
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 
@@ -118,6 +125,7 @@ INSTALLED_APPS = (
 
     'django_extensions',
     'django_nose',
+    'guardian',
 
     'greta',
 )
