@@ -28,5 +28,6 @@ bootstrap.py
 secret_settings.py
 
 # Ignore test repos
+var/archives/
 var/repos/
 var/test_repos/

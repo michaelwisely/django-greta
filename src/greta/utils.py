@@ -1,9 +1,42 @@
+from django.conf import settings
+
 import subprocess
 import mimetypes
+import datetime
+import tarfile
+import shutil
+import os
 import re
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def time_filename():
+    """Returns a time format suitable for a filename"""
+    now = datetime.datetime.now()
+    return now.strftime("%Y-%m-%d--%H-%M-%S-%f")
+
+
+def archive_directory(path, archive_name=None):
+    """Archives a directory at ``path`` using tar, names it
+    ``archive_name``, stores it in GRETA_ARCHIVE_DIR, and deletes the
+    original path at ``path``"""
+    if archive_name is None:
+        archive_name = "{0}.tar.gz".format(time_filename())
+    archive_path = os.path.join(settings.GRETA_ARCHIVE_DIR, archive_name)
+    with tarfile.open(archive_path, "w:gz") as tar:
+        tar.add(path, arcname=os.path.basename(path))
+    shutil.rmtree(path)
+
+
+def archive_repository(repo):
+    """Archives a repository using tar, stores it in
+    GRETA_ARCHIVE_DIR, and deletes the original repository from
+    GRETA_REPO_DIR"""
+    archive_name = "{0}-{1}-{2}.tar.gz".format(repo.id, repo.name,
+                                               time_filename())
+    archive_directory(repo.path, archive_name)
 
 
 class Commiterator(object):
