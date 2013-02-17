@@ -82,12 +82,17 @@ class Repository(models.Model):
         if tree_path:
             top_dir, _, tree_path = tree_path.partition(os.path.sep)
             top_dir_subtree = self._subtree(tree_dict[top_dir], tree_path)
-            return dict((os.path.join(top_dir,path), obj)
+            return dict((os.path.join(top_dir, path), obj)
                         for path, obj in top_dir_subtree.iteritems())
         return tree_dict
 
     def get_tree(self, ref, tree_path=''):
         return self._subtree(self.repo[self.repo[ref].tree], tree_path)
+
+    def get_blob(self, ref, blob_path):
+        tree_path = os.path.dirname(blob_path)
+        tree = self.get_tree(ref, tree_path)
+        return tree[blob_path]
 
     def get_log(self, ref=None, start=0, stop=-1):
         return Commiterator(self.repo, ref, start, stop)
