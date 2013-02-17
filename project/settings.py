@@ -39,6 +39,8 @@ DATABASES = {
     }
 }
 
+LOGIN_REDIRECT_URL = '/'
+
 # For Django guardian.
 ANONYMOUS_USER_ID = -1
 AUTHENTICATION_BACKENDS = (
