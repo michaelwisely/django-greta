@@ -74,7 +74,7 @@ class RepositoryDetail(GretaMixin, DetailView):
         return context
 
 
-class CommitDetail(RepositoryDetail):
+class CommitDetail(GretaMixin, DetailView):
     template_name = "greta/commit_detail.html"
 
     def get_context_data(self, **kwargs):
@@ -87,12 +87,13 @@ class CommitDetail(RepositoryDetail):
         return context
 
 
-class TreeDetail(RepositoryDetail):
+class TreeDetail(GretaMixin, DetailView):
     template_name = "greta/tree_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super(TreeDetail, self).get_context_data(**kwargs)
         try:
+            context['path'] = self.kwargs['path']
             context['tree'] = self.object.get_tree(self.kwargs['ref'],
                                                    self.kwargs['path'])
             context['commit'] = self.object.get_commit(self.kwargs['ref'])
