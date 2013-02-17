@@ -61,17 +61,9 @@ class Repository(models.Model):
             self._dulwich_repo = DulwichRepo(self.path)
         return self._dulwich_repo
 
-    def full_ref(self, ref):
-        if ref in self.branches:
-            ref = 'refs/heads/' + ref
-        elif ref in self.tags:
-            ref = 'refs/tags/' + ref
-        return ref
-
     def _filter_branch(self, ref_prefix=''):
-        len_prefix = len(ref_prefix)
         refs = self.repo.get_refs().keys()
-        return [r[len_prefix:] for r in refs if r.startswith(ref_prefix)]
+        return [r for r in refs if r.startswith(ref_prefix)]
 
     @property
     def branches(self):
@@ -82,7 +74,7 @@ class Repository(models.Model):
         return self._filter_branch('refs/tags/')
 
     def get_commit(self, ref):
-        return self.repo[self.full_ref(ref)]
+        return self.repo[ref]
 
     def _subtree(self, tree, tree_path=''):
         tree_dict = dict((path, self.repo[sha])
@@ -112,7 +104,7 @@ class Repository(models.Model):
         return stdout
 
     def show(self, ref):
-        ref = self.repo[self.full_ref(ref)].id
+        ref = self.repo[ref].id
         command = ['git', 'show', '--format=oneline', ref]
         _, _, diff = self._run_git_command(command).partition('\n')
         return highlight(diff, DiffLexer(), HtmlFormatter())

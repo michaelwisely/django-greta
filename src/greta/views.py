@@ -23,9 +23,26 @@ class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
         self.kwargs = kwargs
         return super(GretaMixin, self).dispatch(*args, **kwargs)
 
+    def update_ref(self):
+        default_ref = 'refs/heads/' + self.object.default_branch
+        current_ref = self.request.session.get('current_ref', default_ref)
+
+        new_ref = self.request.GET.get('ref', None)
+
+        if new_ref in self.object.repo.get_refs():
+            current_ref = new_ref
+
+        self.request.session['current_ref'] = current_ref
+
     def get_context_data(self, **kwargs):
         context = super(GretaMixin, self).get_context_data(**kwargs)
+
+        # add current_ref and ref_type to user's session
+        self.update_ref()
+
+        # Add ref to contect
         context['ref'] = self.kwargs['ref']
+
         return context
 
 
@@ -37,6 +54,10 @@ class RepositoryList(ListView):
 
 class RedirectToDefaultBranch(RedirectView):
     def get_redirect_url(self, **kwargs):
+        try:
+            self.request.session.pop('current_ref')
+        except KeyError:
+            pass
         repo = get_object_or_404(Repository, pk=self.kwargs['pk'])
         return repo.get_absolute_url()
 
