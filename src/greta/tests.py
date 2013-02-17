@@ -32,7 +32,7 @@ class RepoTest(TestCase):
         # Create a repo with a history of two commits
         repo = RepoFactory.create(num_commits=2)
         # Master was created
-        self.assertEqual(["master"], repo.branches)
+        self.assertEqual(["refs/heads/master"], repo.branches)
         # derp.txt exists in the tree (look at the definition of RepoFactory)
         self.assertEqual(["derp.txt"], repo.get_tree('HEAD').keys())
 
@@ -72,7 +72,7 @@ class RepoViewsTest(TestCase):
 
     def test_unauthorized_access_repo_detail(self):
         """Unauthorized access repo_detail"""
-        self.assertUnauthorized(self.alice.username, '123',
-                                self.alice_repo.get_absolute_url())
         self.assertUnauthorized(self.bob.username, '123',
+                                self.alice_repo.get_absolute_url())
+        self.assertUnauthorized(self.alice.username, '123',
                               self.bob_repo.get_absolute_url())
