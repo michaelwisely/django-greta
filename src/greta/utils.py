@@ -5,10 +5,12 @@ logger = logging.getLogger(__name__)
 
 
 class Commiterator(object):
-    def __init__(self, repo, skip=0, max_count=-1):
+    def __init__(self, repo, ref=None, skip=0, max_count=-1):
         command = ['git', 'log', '--format=%H',
                    "--skip={0}".format(skip),
                    "--max-count={0}".format(max_count)]
+        if ref is not None:
+            command.append(ref)
         git_log = subprocess.Popen(command,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
