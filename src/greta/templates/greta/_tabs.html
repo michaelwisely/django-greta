@@ -12,8 +12,8 @@
       </a>
     </li>
 
-    <li {% if files %}class="active"{% endif %}>
-      <a href="#">
+    <li {% if tree %}class="active"{% endif %}>
+      <a href="{% url 'tree_detail' pk=repo.pk ref=ref path='' %}">
         Files
       </a>
     </li>
