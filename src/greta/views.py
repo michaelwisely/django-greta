@@ -1,5 +1,8 @@
 from django.views.generic import RedirectView, ListView, DetailView
+from django.views.generic.detail import SingleObjectMixin
 from django.shortcuts import get_object_or_404
+
+from guardian.mixins import PermissionRequiredMixin
 
 from .models import Repository
 
@@ -8,9 +11,19 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class GretaContextMixin(object):
+class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
+    model = Repository
+    context_object_name = "repo"
+    permission_required = "greta.can_view_repository"
+    raise_exception = True
+
+    def dispatch(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        return super(GretaMixin, self).dispatch(*args, **kwargs)
+
     def get_context_data(self, **kwargs):
-        context = super(GretaContextMixin, self).get_context_data(**kwargs)
+        context = super(GretaMixin, self).get_context_data(**kwargs)
         context['ref'] = self.kwargs['ref']
         return context
 
@@ -27,9 +40,7 @@ class RedirectToDefaultBranch(RedirectView):
         return repo.get_absolute_url()
 
 
-class RepositoryDetail(GretaContextMixin, DetailView):
-    model = Repository
-    context_object_name = "repo"
+class RepositoryDetail(GretaMixin, DetailView):
     template_name = "greta/repository_detail.html"
 
     def get_context_data(self, **kwargs):
