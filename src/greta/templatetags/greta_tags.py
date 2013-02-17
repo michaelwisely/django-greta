@@ -4,6 +4,7 @@ from django.template.defaultfilters import stringfilter
 import dulwich
 import markdown
 import datetime
+import os
 import re
 
 register = template.Library()
@@ -72,3 +73,21 @@ def is_tree(value):
 @register.filter
 def is_blob(value):
     return isinstance(value, dulwich.repo.Blob)
+
+
+@register.filter
+@stringfilter
+def basename(value):
+    return os.path.basename(value)
+
+
+@register.filter
+@stringfilter
+def dirname(value):
+    return os.path.dirname(value)
+
+
+@register.filter
+@stringfilter
+def split_path(value):
+    return value.split(os.path.sep)
