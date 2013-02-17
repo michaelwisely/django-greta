@@ -1,6 +1,14 @@
 from django import template
 from django.template.defaultfilters import stringfilter
+from django.utils.safestring import mark_safe
+from django.utils.html import escape
 
+from pygments import highlight
+from pygments.lexers import guess_lexer_for_filename, TextLexer
+from pygments.formatters import HtmlFormatter
+from pygments.util import ClassNotFound
+
+import mimetypes
 import dulwich
 import markdown
 import datetime
@@ -36,11 +44,13 @@ def committer(value):
 @stringfilter
 def commit_message(value):
     try:
+        value = escape(value)
         title, _, body = value.partition('\n')
-        return "<h4>{0}</h4> {1}".format(title, markdown.markdown(body))
+        message = "<h4>{0}</h4> {1}".format(title, markdown.markdown(body))
+        return mark_safe(message)
     except:
         print "Caught an exception"
-        return value
+    return value
 
 
 @register.filter
@@ -91,3 +101,12 @@ def dirname(value):
 @stringfilter
 def split_path(value):
     return value.split(os.path.sep)
+
+
+@register.filter
+def pygmentize_blob(value, path):
+    try:
+        lexer = guess_lexer_for_filename(path, value)
+    except ClassNotFound:
+        lexer = TextLexer()
+    return mark_safe(highlight(value, lexer, HtmlFormatter()))

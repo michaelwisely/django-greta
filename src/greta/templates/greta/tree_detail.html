@@ -14,7 +14,7 @@
   {% include "greta/_tabs.html" %}
 
   <h2 id="tree-paths">
-    <a href="{% url 'tree_detail' pk=repo.pk ref=ref path=dir %}">
+    <a href="{% url 'tree_detail' pk=repo.pk ref=ref path="" %}">
       {{ repo.name }}/
     </a>
     {% for dir in path|split_path %}
@@ -54,7 +54,9 @@
             </a>
           {% endif %}
           {% if object|is_blob %}
-            {{ item }}
+            <a href="{% url 'blob_detail' pk=repo.pk ref=ref path=item %}">
+              {{ item }}
+            </a>
           {% endif %}
         </td>
         <td>

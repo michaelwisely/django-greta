@@ -1,11 +1,13 @@
 from django.views.generic import RedirectView, ListView, DetailView
 from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.http import Http404, HttpResponse
 
 from guardian.mixins import PermissionRequiredMixin
 
 from .models import Repository
+from .utils import is_binary, image_mimetype
 
 import logging
 
@@ -97,6 +99,46 @@ class TreeDetail(GretaMixin, DetailView):
             context['tree'] = self.object.get_tree(self.kwargs['ref'],
                                                    self.kwargs['path'])
             context['commit'] = self.object.get_commit(self.kwargs['ref'])
+        except KeyError:
+            raise Http404("Bad ref")
+        except AttributeError:
+            raise Http404("Cannot view blob as a tree")
+
+        return context
+
+
+class BlobDetail(GretaMixin, DetailView):
+    template_name = "greta/blob_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(BlobDetail, self).get_context_data(**kwargs)
+        try:
+            path = self.kwargs['path']
+            blob = self.object.get_blob(self.kwargs['ref'], path)
+            blob_contents = blob.as_raw_string()
+
+            context['path'] = path
+            context['blob'] = blob
+            context['blob_contents'] = blob_contents
+            context['blob_is_binary'] = is_binary(blob_contents)
+            context['blob_is_image'] = image_mimetype(path)
+            context['commit'] = self.object.get_commit(self.kwargs['ref'])
+        except KeyError:
+            raise Http404("Bad ref")
+        return context
+
+
+class ImageBlobDetail(GretaMixin, View):
+
+    def get(self, *args, **kwargs):
+        try:
+            obj = self.get_object()
+            mimetype = image_mimetype(kwargs['path'])
+            if mimetype is None:
+                raise Http404("%s is not an image" % kwargs['path'])
+
+            blob = obj.get_blob(kwargs['ref'], kwargs['path'])
+            return HttpResponse(blob.as_raw_string(), content_type=mimetype)
         except KeyError:
             raise Http404("Bad ref")
         return context
