@@ -2,25 +2,55 @@
 
 <ul class="nav nav-pills">
   <li {% if log %}class="active"{% endif %}>
-    {% if ref %}
-      <a href="{% url 'repo_detail' pk=repo.pk ref=ref %}">Commit History</a>
-    {% else %}
-      <a href="{% url 'repo_detail' pk=repo.pk %}">Commit History</a>
-    {% endif %}
+    <a href="{% url 'repo_detail' pk=repo.pk %}">
+      Commit History
+      <span class="badge">{{ ref|truncatechars:10 }}</span>
+    </a>
   </li>
   <li {% if files %}class="active"{% endif %}>
     <a href="#">
       Files
     </a>
   </li>
-  <li {% if branches %}class="active"{% endif %}>
-    <a href="{% url 'branch_detail' pk=repo.pk %}">
-      Branches
-    </a>
-  </li>
-  <li {% if tags %}class="active"{% endif %}>
-    <a href="{% url 'tag_detail' pk=repo.pk %}">
-      Tags
-    </a>
-  </li>
+
+  {% if repo.branches %}
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        Branches
+        <b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu">
+        {% for branch in repo.branches %}
+          <li>
+            <a href="{% url 'repo_detail' pk=repo.pk ref=branch %}">
+              {{ branch }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </li>
+  {% else %}
+    <li class="disabled"><a href="#">Branches</a></li>
+  {% endif %}
+
+  {% if repo.tags %}
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        Tags
+        <b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu">
+        {% for tag in repo.tags %}
+          <li>
+            <a href="{% url 'repo_detail' pk=repo.pk ref=tag %}">
+              {{ tag }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </li>
+  {% else %}
+    <li class="disabled"><a href="#">Tags</a></li>
+  {% endif %}
+
 </ul>
