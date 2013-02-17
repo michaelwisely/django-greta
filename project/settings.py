@@ -25,6 +25,11 @@ GRETA_ROOT_TEST_DIR = os.path.join(VAR_DIR, "test_repos")
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = ['--cover-package=greta']
 
+# Django Debug Toolbar settings
+INTERNAL_IPS = ('127.0.0.1',)
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}
 
 ADMINS = (
     # empty
@@ -86,6 +91,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'project.urls'
@@ -125,6 +131,7 @@ INSTALLED_APPS = (
     # django-crispy-forms
     'crispy_forms',
 
+    'debug_toolbar',
     'django_extensions',
     'django_nose',
     'guardian',
