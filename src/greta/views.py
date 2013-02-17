@@ -27,18 +27,6 @@ class RedirectToDefaultBranch(RedirectView):
         return repo.get_absolute_url()
 
 
-class BranchDetail(DetailView):
-    model = Repository
-    context_object_name = "repo"
-    template_name = "greta/branch_detail.html"
-
-
-class TagDetail(DetailView):
-    model = Repository
-    context_object_name = "repo"
-    template_name = "greta/tag_detail.html"
-
-
 class RepositoryDetail(GretaContextMixin, DetailView):
     model = Repository
     context_object_name = "repo"
