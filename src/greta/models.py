@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.conf import settings
 from django.dispatch import receiver
 
@@ -8,24 +8,17 @@ from pygments.lexers import DiffLexer
 from pygments.formatters import HtmlFormatter
 
 from .validators import repo_name_validator
-from .utils import Commiterator
+from .utils import Commiterator, archive_directory, archive_repository
 
 from dulwich.repo import Repo as DulwichRepo
 from dulwich.errors import NotGitRepository
 
 import os
 import subprocess
-import difflib
+import datetime
 import logging
 
 logger = logging.getLogger(__name__)
-
-
-def path_to_list(path):
-    head, tail = os.path.split(path)
-    if head in ('', '/') and tail == '':
-        return ()
-    return path_to_list(head) + (tail,)
 
 
 class Repository(models.Model):
@@ -38,6 +31,9 @@ class Repository(models.Model):
     default_branch = models.CharField(max_length=30, default="master")
     name = models.CharField(max_length=100, unique=True,
                                  validators=[repo_name_validator])
+    forked_from = models.ForeignKey("self", blank=True, null=True,
+                                    related_name="forks",
+                                    on_delete=models.SET_NULL)
 
     def __init__(self, *args, **kwargs):
         self._dulwich_repo = None
@@ -119,15 +115,30 @@ class Repository(models.Model):
 @receiver(post_save, sender=Repository)
 def create_on_disk_repository(sender, instance, created, **kwargs):
     if created:
-        if not os.path.exists(instance.path):
-            os.mkdir(instance.path)
-            logger.info("Created path for repo at %s", instance.path)
-            DulwichRepo.init(instance.path)
-            logger.info("Initialized repo at %s", instance.path)
+        if os.path.exists(instance.path):
+            # If the repository exists, archive it
+            logger.warning("Path %s exists. Archiving it.", instance.path)
+            archive_directory(instance.path,
+                              "{0}.tar.gz".format(datetime.datetime.now()))
+
+        # Create the path for the repository
+        os.mkdir(instance.path)
+        logger.info("Created path for repo at %s", instance.path)
+
+        if instance.forked_from is not None:
+            # If we're forking a repo, clone from the parent
+            DulwichRepo.clone(instance.forked_from.path,
+                              mkdir=False, bare=True)
+            logger.info("Cloned repo to %s", instance.path)
         else:
-            logger.info("Path exists for repo at %s", instance.path)
-            try:
-                DulwichRepo(instance.path)
-                logger.info("Path at %s is a valid git repo", instance.path)
-            except NotGitRepository:
-                logger.error("Path at %s is NOT a git repo", instance.path)
+            # If we're not forking a repo, just init a new one
+            DulwichRepo.init_bare(instance.path)
+            logger.info("Initialized repo at %s", instance.path)
+
+
+@receiver(post_delete, sender=Repository)
+def archive_repository_on_delete(sender, instance, **kwargs):
+    if os.path.exists(instance.path):
+        # If the repository exists, archive it
+        logger.info("Archiving repository at %s", instance.path)
+        archive_repository(instance)
