@@ -8,6 +8,8 @@ import shutil
 import os
 import re
 
+DIFF_LINE_RE = re.compile(r'^(diff --git .*)$', flags=re.MULTILINE)
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -110,3 +112,13 @@ def image_mimetype(path):
         if mimetype.startswith('image/'):
             return mimetype
     return None
+
+
+def pairs(lst):
+    for i in xrange(0, len(lst), 2):
+        yield lst[i:i + 2]
+
+
+def split_diff(diff_string):
+    """Splits a diff into a list of pairs: (file name, diff)"""
+    return pairs(DIFF_LINE_RE.split(diff_string)[1:])

@@ -7,7 +7,7 @@
 
   <div class="row">
     <div class="span5 well">
-      <h3>Commit Details</h3> 
+      <h3>Commit Details</h3>
       <table class="table">
         <tbody>
           <tr>
@@ -26,12 +26,18 @@
       </table>
     </div>
     <div class="span6 well">
-      <h3>Commit Message</h3>      
+      <h3>Commit Message</h3>
       <p>{{ commit.message|commit_message }}</p>
     </div>
-    
+
   </div>
 
-  {{ changes|pygmentize_diff }}
+  {% for filename, diff in changes %}
+    <h3>{{ filename|pretty_diffname }}</h3>
+    {{ diff|pygmentize_diff }}
+    {% if not forloop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
 
 {% endblock %}

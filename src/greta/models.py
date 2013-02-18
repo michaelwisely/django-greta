@@ -4,11 +4,13 @@ from django.conf import settings
 from django.dispatch import receiver
 
 from .validators import repo_name_validator
-from .utils import Commiterator, archive_directory, archive_repository
+from .utils import (Commiterator, archive_directory,
+                    archive_repository, split_diff)
 
 from dulwich.repo import Repo as DulwichRepo
 from collections import OrderedDict
 
+import re
 import os
 import subprocess
 import logging
@@ -108,7 +110,7 @@ class Repository(models.Model):
         ref = self.repo[ref].id
         command = ['git', 'show', '--format=oneline', ref]
         _, _, diff = self._run_git_command(command).partition('\n')
-        return diff
+        return split_diff(diff)
 
 
 @receiver(post_save, sender=Repository)

@@ -19,6 +19,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 register = template.Library()
+DIFF_PATHS_RE = re.compile(r'^diff --git a/(.*) b/(.*)$')
 
 
 @register.filter
@@ -115,6 +116,14 @@ def subpaths(value):
 
 @register.filter
 @stringfilter
+def pretty_diffname(value):
+    match = DIFF_PATHS_RE.match(value)
+    if match.group(1) == match.group(2):
+        return match.group(1)
+    return "{0} to {1}".format(match.group(1), match.group(2))
+
+
+@register.filter
 def pygmentize_diff(value):
     return mark_safe(highlight(value, DiffLexer(), HtmlFormatter()))
 
