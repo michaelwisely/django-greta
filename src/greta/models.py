@@ -7,6 +7,7 @@ from .validators import repo_name_validator
 from .utils import Commiterator, archive_directory, archive_repository
 
 from dulwich.repo import Repo as DulwichRepo
+from collections import OrderedDict
 
 import os
 import subprocess
@@ -67,13 +68,17 @@ class Repository(models.Model):
         return self.repo[ref]
 
     def _subtree(self, tree, tree_path=''):
-        tree_dict = dict((path, self.repo[sha])
-                         for _, path, sha in tree.entries())
+        tree_dict = OrderedDict(
+            (path, sha) for _, path, sha in tree.entries()
+        )
         if tree_path:
             top_dir, _, tree_path = tree_path.partition(os.path.sep)
-            top_dir_subtree = self._subtree(tree_dict[top_dir], tree_path)
-            return dict((os.path.join(top_dir, path), obj)
-                        for path, obj in top_dir_subtree.iteritems())
+            subtree = self._subtree(self.repo[tree_dict[top_dir]], tree_path)
+            tree_dict = OrderedDict((os.path.join(top_dir, path), obj)
+                                    for path, obj in subtree.iteritems())
+        else:
+            tree_dict = OrderedDict((path, self.repo[sha])
+                                    for path, sha in tree_dict.iteritems())
         return tree_dict
 
     def get_tree(self, ref, tree_path=''):
