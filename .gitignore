@@ -29,5 +29,6 @@ secret_settings.py
 
 # Ignore test repos
 var/archives/
+var/logs/
 var/repos/
 var/test_repos/
