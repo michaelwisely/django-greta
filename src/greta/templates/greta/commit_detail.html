@@ -12,7 +12,7 @@
         <tbody>
           <tr>
             <td>Commit ID</td>
-            <td>{{ commit.id|truncatechars:10 }}</td>
+            <td>{{ commit.id }}</td>
           </tr>
           <tr>
             <td>Commiter</td>
@@ -32,6 +32,6 @@
     
   </div>
 
-  {{ changes|safe }}
+  {{ changes|pygmentize_diff }}
 
 {% endblock %}

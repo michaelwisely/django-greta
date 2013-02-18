@@ -3,15 +3,10 @@ from django.db.models.signals import post_save, post_delete
 from django.conf import settings
 from django.dispatch import receiver
 
-from pygments import highlight
-from pygments.lexers import DiffLexer
-from pygments.formatters import HtmlFormatter
-
 from .validators import repo_name_validator
 from .utils import Commiterator, archive_directory, archive_repository
 
 from dulwich.repo import Repo as DulwichRepo
-from dulwich.errors import NotGitRepository
 
 import os
 import subprocess
@@ -108,7 +103,7 @@ class Repository(models.Model):
         ref = self.repo[ref].id
         command = ['git', 'show', '--format=oneline', ref]
         _, _, diff = self._run_git_command(command).partition('\n')
-        return highlight(diff, DiffLexer(), HtmlFormatter())
+        return diff
 
 
 @receiver(post_save, sender=Repository)

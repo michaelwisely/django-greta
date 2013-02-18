@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
 from pygments import highlight
-from pygments.lexers import guess_lexer_for_filename, TextLexer
+from pygments.lexers import guess_lexer_for_filename, TextLexer, DiffLexer
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 
@@ -101,6 +101,12 @@ def dirname(value):
 @stringfilter
 def split_path(value):
     return value.split(os.path.sep)
+
+
+@register.filter
+@stringfilter
+def pygmentize_diff(value):
+    return mark_safe(highlight(value, DiffLexer(), HtmlFormatter()))
 
 
 @register.filter
