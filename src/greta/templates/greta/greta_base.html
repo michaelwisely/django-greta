@@ -4,6 +4,6 @@
 
 {% block page-header%}
   <div class="page-header">
-    <h1>{{ repo.name }} <small>{{ request.session.current_ref|pretty_ref|truncatechars:15 }}</small></h1>
+    <h1>{{ repo.name }} <small>{{ ref|pretty_ref|truncatechars:15 }}</small></h1>
   </div>
 {% endblock %}
