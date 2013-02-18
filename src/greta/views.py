@@ -11,6 +11,7 @@ from guardian.mixins import PermissionRequiredMixin
 from .models import Repository
 from .utils import is_binary, image_mimetype
 
+import re
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,11 +22,34 @@ class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
     context_object_name = "repo"
     permission_required = "greta.can_view_repository"
     raise_exception = True
+    sha_re = re.compile(r'^[a-f0-9]{40}$')
 
     def dispatch(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
+
+        self.validate_ref(self.kwargs['ref'])
+
         return super(GretaMixin, self).dispatch(*args, **kwargs)
+
+    def validate_ref(self, ref):
+        sha_match = self.sha_re.match(ref)
+        if sha_match is not None:
+            # If it's a valid sha1 hash, we're good.
+            return
+
+        repo = self.get_object()
+        if not ref.startswith('refs'):
+            # If it doesn't start with 'refs/heads, we'll assume it's
+            # a branch name.
+            ref = 'refs/heads/' + ref
+        if ref in repo.repo.get_refs():
+            # If it's in the list of refs, we're solid.
+            return
+
+        # If we haven't returned yet, the ref must be no good.
+        logger.debug('Invalid ref: "%s"' % ref)
+        raise Http404("No such ref.")
 
     def update_ref(self):
         default_ref = 'refs/heads/' + self.object.default_branch
