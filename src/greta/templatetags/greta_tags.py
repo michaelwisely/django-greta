@@ -52,8 +52,9 @@ def commit_message(value):
         title, _, body = value.partition('\n')
         message = "<h4>{0}</h4> {1}".format(title, markdown.markdown(body))
         return mark_safe(message)
-    except:
-        logger.warning("Caught an exception formatting commit message")
+    except Exception, e:
+        msg = "Caught an exception formatting commit message: %s: %s"
+        logger.warning(msg % (str(type(e)), str(e)))
     return value
 
 
