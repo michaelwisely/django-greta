@@ -41,8 +41,9 @@ class Repository(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('repo_detail', (), {'pk': self.pk,
-                                    'ref': self.default_branch})
+        kwargs = {'pk': self.pk,
+                  'ref': 'refs/heads/' + self.default_branch}
+        return ('repo_detail', (), kwargs)
 
     @property
     def path(self):
