@@ -40,8 +40,10 @@ def archive_repository(repo):
 
 
 class Commiterator(object):
+    line_re = re.compile(r'^([a-f0-9]+)(?: \((.*)\))?$')
+
     def __init__(self, repo, ref=None, skip=0, max_count=-1):
-        command = ['git', 'log', '--format=%H',
+        command = ['git', 'log', '--format=%H%d',
                    "--skip={0}".format(skip),
                    "--max-count={0}".format(max_count)]
         if ref is not None:
@@ -58,14 +60,22 @@ class Commiterator(object):
         self.commit_shas = stdout.splitlines()
         self.repo = repo
 
+    def process_line(self, line):
+        match = self.line_re.match(line)
+        sha = match.group(1)
+        refs = match.group(2)
+        if refs is not None:
+            refs = [ref.strip() for ref in refs.split(',')]
+        return (self.repo[sha], refs)
+
     def __len__(self):
         return len(self.commit_shas)
 
     def __getitem__(self, index_or_slice):
-        commit_shas = self.commit_shas[index_or_slice]
-        if isinstance(commit_shas, list):
-            return [self.repo[sha] for sha in commit_shas]
-        return self.repo[commit_shas]
+        lines = self.commit_shas[index_or_slice]
+        if isinstance(lines, list):
+            return [self.process_line(line) for line in lines]
+        return self.process_line(lines)
 
     def __iter__(self):
         for commit in self.commit_shas:
