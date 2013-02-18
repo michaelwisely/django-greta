@@ -105,6 +105,13 @@ def split_path(value):
 
 @register.filter
 @stringfilter
+def subpaths(value):
+    parts = value.split(os.path.sep)
+    return [os.path.sep.join(parts[0:i+1]) for i in xrange(len(parts))]
+
+
+@register.filter
+@stringfilter
 def pygmentize_diff(value):
     return mark_safe(highlight(value, DiffLexer(), HtmlFormatter()))
 

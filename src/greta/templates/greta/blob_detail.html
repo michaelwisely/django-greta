@@ -13,22 +13,7 @@
 {% block content %}
   {% include "greta/_tabs.html" %}
 
-  <h2 id="tree-paths">
-    <a href="{% url 'tree_detail' pk=repo.pk ref=ref path="" %}">
-      {{ repo.name }}/
-    </a>
-    {% for dir in path|split_path %}
-      {% if not forloop.last %}
-        <a href="{% url 'tree_detail' pk=repo.pk ref=ref path=dir %}">
-          {{ dir }}/
-        </a>
-      {% endif %}
-
-      {% if forloop.last %}
-        {{ dir }}
-      {% endif %}
-    {% endfor %}
-  </h2>
+  {% include "greta/_path_breadcrumbs.html" %}
 
   <div id="blob">
     {% if blob_is_binary  %}
