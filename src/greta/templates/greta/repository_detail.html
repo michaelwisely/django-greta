@@ -51,4 +51,7 @@
   {% empty %}
     <h2>No commits, yet.</h2>
   {% endfor %}
+
+  {% include "greta/_paginator.html" with page=log %}
+
 {% endblock %}

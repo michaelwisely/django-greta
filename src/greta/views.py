@@ -1,8 +1,10 @@
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import RedirectView, ListView, DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.base import View
 from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponse
+from django.conf import settings
 
 from guardian.mixins import PermissionRequiredMixin
 
@@ -66,13 +68,28 @@ class RedirectToDefaultBranch(RedirectView):
 
 class RepositoryDetail(GretaMixin, DetailView):
     template_name = "greta/repository_detail.html"
+    paginate_commits_by = getattr(settings, "GRETA_PAGE_COMMITS_BY", 10)
 
     def get_context_data(self, **kwargs):
         context = super(RepositoryDetail, self).get_context_data(**kwargs)
+
         try:
-            context['log'] = self.object.get_log(ref=self.kwargs['ref'])
+            commits = self.object.get_log(ref=self.kwargs['ref'])
         except KeyError:
             raise Http404("Bad ref")
+
+        paginator = Paginator(commits, self.paginate_commits_by)
+        page = self.request.GET.get('page', None)
+        try:
+            context['log'] = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            context['log'] = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page
+            # of results.
+            context['log'] = paginator.page(paginator.num_pages)
+
         return context
 
 

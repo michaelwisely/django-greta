@@ -21,6 +21,7 @@ except ImportError:
 GRETA_ROOT_DIR = os.path.join(VAR_DIR, "repos")
 GRETA_ROOT_TEST_DIR = os.path.join(VAR_DIR, "test_repos")
 GRETA_ARCHIVE_DIR = os.path.join(VAR_DIR, "archives")
+GRETA_PAGE_COMMITS_BY = 10
 
 # Testing settings
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
