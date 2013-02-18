@@ -15,6 +15,9 @@ import datetime
 import os
 import re
 
+import logging
+logger = logging.getLogger(__name__)
+
 register = template.Library()
 
 
@@ -49,7 +52,7 @@ def commit_message(value):
         message = "<h4>{0}</h4> {1}".format(title, markdown.markdown(body))
         return mark_safe(message)
     except:
-        print "Caught an exception"
+        logger.warning("Caught an exception formatting commit message")
     return value
 
 
