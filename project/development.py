@@ -1,5 +1,7 @@
 from project.settings import *
 
+# localhost:8000
+SITE_ID = 1
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG

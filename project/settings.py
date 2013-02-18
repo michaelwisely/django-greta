@@ -48,8 +48,6 @@ AUTHENTICATION_BACKENDS = (
 TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = 1
-
 USE_I18N = True
 USE_L10N = True
 
