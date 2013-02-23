@@ -1,8 +1,10 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.generic import RedirectView, ListView, DetailView
+from django.views.generic import (RedirectView, ListView, DetailView,
+                                  TemplateView)
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.base import View
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
+from django.template import RequestContext
 from django.http import Http404, HttpResponse
 from django.conf import settings
 
@@ -27,10 +29,17 @@ class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
     def dispatch(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
-
-        self.validate_ref(self.kwargs['ref'])
-
+        self.request = args[0]
         return super(GretaMixin, self).dispatch(*args, **kwargs)
+
+    def get(self, *args, **kwargs):
+        # Check if the repo is ready
+        if not self.get_object().is_ready():
+            context = RequestContext(self.request, {})
+            return render_to_response("greta/repository_not_ready.html",
+                                      context)
+        self.validate_ref(self.kwargs['ref'])
+        return super(GretaMixin, self).get(*args, **kwargs)
 
     def validate_ref(self, ref):
         sha_match = self.sha_re.match(ref)
