@@ -2,6 +2,7 @@ from django.conf import settings
 
 import subprocess
 import mimetypes
+import tempfile
 import datetime
 import tarfile
 import shutil
@@ -24,12 +25,14 @@ def archive_directory(path, archive_name=None):
     """Archives a directory at ``path`` using tar, names it
     ``archive_name``, stores it in GRETA_ARCHIVE_DIR, and deletes the
     original path at ``path``"""
+    temp_dir = tempfile.mkdtemp(prefix="GRETA_")  # Create a temporary directory
+    shutil.move(path, temp_dir)                   # Move the old directory there
+    path = os.path.join(temp_dir, os.path.basename(path))
     if archive_name is None:
         archive_name = "{0}.tar.gz".format(time_filename())
     archive_path = os.path.join(settings.GRETA_ARCHIVE_DIR, archive_name)
     with tarfile.open(archive_path, "w:gz") as tar:
         tar.add(path, arcname=os.path.basename(path))
-    shutil.rmtree(path)
 
 
 def archive_repository(repo):
