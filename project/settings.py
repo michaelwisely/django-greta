@@ -18,6 +18,18 @@ except ImportError:
     from secret_settings import *
 
 
+# Django celery settings
+import djcelery
+djcelery.setup_loader()
+
+# Default to the django backend if necessary.
+# ... this is the only way i can find to see if
+# a variable is defined.
+try:
+    BROKER_URL
+except NameError:
+    BROKER_URL = 'django://'
+
 GRETA_ROOT_DIR = os.path.join(VAR_DIR, "repos")
 GRETA_ROOT_TEST_DIR = os.path.join(VAR_DIR, "test_repos")
 GRETA_ARCHIVE_DIR = os.path.join(VAR_DIR, "archives")
@@ -119,6 +131,10 @@ INSTALLED_APPS = (
 
     # django-crispy-forms
     'crispy_forms',
+
+    # Django celery
+    'kombu.transport.django',
+    'djcelery',
 
     'django_extensions',
     'guardian',
