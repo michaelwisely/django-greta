@@ -1,6 +1,14 @@
-- fields: {content_type: 12, object_pk: '2', permission: 37, user: 2}
+- fields:
+    content_type: [greta, repository]
+    object_pk: '1'
+    permission: [can_view_repository, greta, repository]
+    user: [alice]
   model: guardian.userobjectpermission
   pk: 1
-- fields: {content_type: 12, object_pk: '3', permission: 37, user: 3}
+- fields:
+    content_type: [greta, repository]
+    object_pk: '2'
+    permission: [can_view_repository, greta, repository]
+    user: [bob]
   model: guardian.userobjectpermission
   pk: 2

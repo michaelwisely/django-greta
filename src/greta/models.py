@@ -2,6 +2,8 @@ from django.db import models
 from django.db.models.signals import post_save, post_delete
 from django.conf import settings
 from django.dispatch import receiver
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 
 from .validators import repo_name_validator
 from .utils import (Commiterator, archive_directory,
@@ -30,6 +32,11 @@ class Repository(models.Model):
     forked_from = models.ForeignKey("self", blank=True, null=True,
                                     related_name="forks",
                                     on_delete=models.SET_NULL)
+
+    # Generic Foreign  key to an owning object
+    owner_type = models.ForeignKey(ContentType, blank=True, null=True)
+    owner_id = models.PositiveIntegerField(blank=True, null=True)
+    owner = generic.GenericForeignKey('owner_type', 'owner_id')
 
     def __init__(self, *args, **kwargs):
         self._dulwich_repo = None
