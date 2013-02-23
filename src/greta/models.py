@@ -6,9 +6,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
 from .validators import repo_name_validator
-from .utils import (Commiterator, archive_directory,
-                    archive_repository, split_diff)
+from .utils import Commiterator, split_diff
+from .tasks import setup_repo, archive_old_repository
 
+from celery.result import AsyncResult
 from dulwich.repo import Repo as DulwichRepo
 from collections import OrderedDict
 
@@ -32,6 +33,7 @@ class Repository(models.Model):
     forked_from = models.ForeignKey("self", blank=True, null=True,
                                     related_name="forks",
                                     on_delete=models.SET_NULL)
+    task_id = models.CharField(max_length=60, null=True, editable=False)
 
     # Generic Foreign  key to an owning object
     owner_type = models.ForeignKey(ContentType, blank=True, null=True)
@@ -72,6 +74,15 @@ class Repository(models.Model):
     @property
     def tags(self):
         return self._filter_branch('refs/tags/')
+
+    def is_ready(self):
+        if self.task_id is None:
+            return True
+        if AsyncResult(self.task_id).ready():
+            self.task_id = None
+            self.save()
+            return True
+        return False
 
     def get_commit(self, ref):
         return self.repo[ref]
@@ -123,39 +134,12 @@ class Repository(models.Model):
 @receiver(post_save, sender=Repository)
 def create_on_disk_repository(sender, instance, created, **kwargs):
     if created:
-        if os.path.exists(instance.path):
-            # If the repository exists, archive it
-            logger.warning("Path %s exists. Archiving it.", instance.path)
-            archive_directory(instance.path)
-
-        # If we have an abc/dev.git repo, create the "abc" directory
-        # if necessary
-        if '/' in instance.name:
-            logger.info("Repository requires a subdirectory")
-            if not os.path.exists(os.path.dirname(instance.path)):
-                os.mkdir(os.path.dirname(instance.path))
-                logger.info("Created parent directory")
-            else:
-                logger.info("Parent directory exists")
-
-        # Create the path for the repository
-        os.mkdir(instance.path)
-        logger.info("Created path for repo at %s", instance.path)
-
-        if instance.forked_from is not None:
-            # If we're forking a repo, clone from the parent
-            instance.forked_from.repo.clone(instance.path,
-                                            mkdir=False, bare=True)
-            logger.info("Cloned repo to %s", instance.path)
-        else:
-            # If we're not forking a repo, just init a new one
-            DulwichRepo.init_bare(instance.path)
-            logger.info("Initialized repo at %s", instance.path)
+        if instance.task_id is not None:
+            logger.warning("task_id was already set...")
+        instance.task_id = setup_repo.delay(instance)
+        instance.save()
 
 
 @receiver(post_delete, sender=Repository)
 def archive_repository_on_delete(sender, instance, **kwargs):
-    if os.path.exists(instance.path):
-        # If the repository exists, archive it
-        logger.info("Archiving repository at %s", instance.path)
-        archive_repository(instance)
+    archive_old_repository.delay(instance)
