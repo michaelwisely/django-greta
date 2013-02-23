@@ -17,5 +17,6 @@ setup(name="django-greta",
                         'markdown',
                         'django-guardian',
                         'django-celery==3.0.11',
+                        'South==0.7.6',
                         ],
       )

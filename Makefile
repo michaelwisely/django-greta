@@ -16,6 +16,7 @@ bootstrap.py:
 db:
 	rm -f var/db/*.db
 	python bin/django syncdb --noinput
+	python bin/django migrate
 	python bin/django loaddata project/fixtures/*_dev_data.yaml
 
 clean:

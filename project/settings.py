@@ -140,6 +140,8 @@ INSTALLED_APPS = (
     'guardian',
 
     'greta',
+
+    'south',
 )
 
 LOGGING = {
