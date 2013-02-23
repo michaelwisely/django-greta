@@ -47,6 +47,10 @@ class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
             # If it's in the list of refs, we're solid.
             return
 
+        # If the repo's empty, let them through
+        if len(repo.repo.get_refs()) == 0:
+            return
+
         # If we haven't returned yet, the ref must be no good.
         logger.debug('Invalid ref: "%s"' % ref)
         raise Http404("No such ref.")

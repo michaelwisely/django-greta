@@ -12,9 +12,14 @@
       </a>
     </li>
 
-    <li {% if tree %}class="active"{% endif %}>
-      <a href="{% url 'tree_detail' pk=repo.pk ref=ref path='' %}">
-        Files
+    {% if repo.repo.get_refs %} {# refs need to exist to see the tree #}
+      <li {% if tree %}class="active"{% endif %}>
+        <a href="{% url 'tree_detail' pk=repo.pk ref=ref path='' %}">
+    {% else %}
+      <li class="disabled">
+        <a href="#">
+      {% endif %}
+          Files
       </a>
     </li>
 
