@@ -30,6 +30,7 @@ class Repository(models.Model):
     default_branch = models.CharField(max_length=30, default="master")
     name = models.CharField(max_length=100, unique=True,
                                  validators=[repo_name_validator])
+    description = models.TextField()
     forked_from = models.ForeignKey("self", blank=True, null=True,
                                     related_name="forks",
                                     on_delete=models.SET_NULL)
