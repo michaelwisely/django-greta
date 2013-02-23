@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 
 import re
 
-REPO_NAME_REGEX = re.compile(r'^[\w-]+\.git$')
+REPO_NAME_REGEX = re.compile(r'^[\w-]+/?[\w-]+\.git$')
 
 
 def repo_name_validator(value):

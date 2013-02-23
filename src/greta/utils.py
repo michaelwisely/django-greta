@@ -36,7 +36,8 @@ def archive_repository(repo):
     """Archives a repository using tar, stores it in
     GRETA_ARCHIVE_DIR, and deletes the original repository from
     GRETA_REPO_DIR"""
-    archive_name = "{0}-{1}-{2}.tar.gz".format(repo.id, repo.name,
+    archive_name = "{0}-{1}-{2}.tar.gz".format(repo.id,
+                                               repo.name.replace('/', '-'),
                                                time_filename())
     archive_directory(repo.path, archive_name)
 

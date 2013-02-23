@@ -122,6 +122,16 @@ def create_on_disk_repository(sender, instance, created, **kwargs):
             logger.warning("Path %s exists. Archiving it.", instance.path)
             archive_directory(instance.path)
 
+        # If we have an abc/dev.git repo, create the "abc" directory
+        # if necessary
+        if '/' in instance.name:
+            logger.info("Repository requires a subdirectory")
+            if not os.path.exists(os.path.dirname(instance.path)):
+                os.mkdir(os.path.dirname(instance.path))
+                logger.info("Created parent directory")
+            else:
+                logger.info("Parent directory exists")
+
         # Create the path for the repository
         os.mkdir(instance.path)
         logger.info("Created path for repo at %s", instance.path)
