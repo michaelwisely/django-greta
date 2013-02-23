@@ -10,7 +10,6 @@ from .utils import (Commiterator, archive_directory,
 from dulwich.repo import Repo as DulwichRepo
 from collections import OrderedDict
 
-import re
 import os
 import subprocess
 import logging
