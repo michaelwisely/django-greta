@@ -16,5 +16,6 @@ setup(name="django-greta",
                         'factory_boy',
                         'markdown',
                         'django-guardian',
+                        'django-celery==3.0.11',
                         ],
       )
