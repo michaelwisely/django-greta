@@ -61,7 +61,8 @@ class Commiterator(object):
         stdout, stderr = git_log.communicate()
 
         if stderr:
-            logger.warning("Git log error: %s", stderr)
+            if 'ambiguous argument' in stderr and 'unknown revision' in stderr:
+                logger.warning("Git log error: %s", stderr)
 
         self.commit_shas = stdout.splitlines()
         self.repo = repo
