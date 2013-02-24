@@ -62,6 +62,12 @@ class Commiterator(object):
 
         if stderr:
             if 'ambiguous argument' in stderr and 'unknown revision' in stderr:
+                # Ignore "fatal: ambiguous argument
+                # 'refs/heads/master': unknown revision or path not in
+                # the working tree." errors from ``git log``
+                logger.info("Git repo is empty.")
+            else:
+                # Otherwise, it might be important
                 logger.warning("Git log error: %s", stderr)
 
         self.commit_shas = stdout.splitlines()
