@@ -5,7 +5,7 @@ from .models import Repository
 
 
 class RepositoryAdmin(GuardedModelAdmin):
-    pass
+    list_display = ('name', 'forked_from', 'description', 'default_branch')
 
 
 admin.site.register(Repository, RepositoryAdmin)
