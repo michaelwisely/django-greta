@@ -6,9 +6,11 @@
     <li {% if log %}class="active"{% endif %}>
       <a href="{% url 'repo_detail' pk=repo.pk ref=current_ref %}">
         Commit History
-        <span class="badge badge-{% if current_ref|is_branch %}inverse{% else %}important{% endif %}">
-          {{ current_ref|pretty_ref|truncatechars:10 }}
-        </span>
+        {% if log %}
+          <span class="badge badge-{% if current_ref|is_branch %}inverse{% else %}important{% endif %}">
+            {{ current_ref|pretty_ref|truncatechars:10 }}
+          </span>
+        {% endif %}
       </a>
     </li>
 
@@ -20,6 +22,11 @@
         <a href="#">
       {% endif %}
           Files
+        {% if tree %}
+          <span class="badge badge-{% if current_ref|is_branch %}inverse{% else %}important{% endif %}">
+            {{ ref|pretty_ref|truncatechars:10 }}
+          </span>
+        {% endif %}
       </a>
     </li>
 
