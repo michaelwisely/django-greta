@@ -8,9 +8,7 @@ from pygments.lexers import guess_lexer_for_filename, TextLexer, DiffLexer
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 
-import mimetypes
 import dulwich
-import markdown
 import datetime
 import os
 import re
@@ -47,15 +45,10 @@ def committer(value):
 @register.filter
 @stringfilter
 def commit_message(value):
-    try:
-        value = escape(value)
-        title, _, body = value.partition('\n')
-        message = "<h4>{0}</h4> {1}".format(title, markdown.markdown(body))
-        return mark_safe(message)
-    except Exception, e:
-        msg = "Caught an exception formatting commit message: %s: %s"
-        logger.warning(msg % (str(type(e)), str(e)))
-    return value
+    value = escape(value)
+    title, _, body = value.partition('\n')
+    message = "<h4>{0}</h4> {1}".format(title, body)
+    return mark_safe(message)
 
 
 @register.filter
