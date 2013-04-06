@@ -7,7 +7,7 @@
 
   {% for commit, refs in log %}
     {% if forloop.first %}
-      <table class="table table-striped">
+      <table class="table table-hover">
         <thead>
           <tr>
             <th>
@@ -27,16 +27,18 @@
         <tbody>
       {% endif %}
 
-      <tr>
+      <tr class="commit-row"
+          href="{% url 'commit_detail' pk=repo.pk ref=commit.id %}"
+          style="cursor: pointer;">
         <td>
           <a href="{% url 'commit_detail' pk=repo.pk ref=commit.id %}">
             {{ commit.id|truncatechars:10 }}
-            {% if refs %}
-              {% for ref in refs %}
-                <span class="label label-info">{{ ref|pretty_ref }}</span>
-              {% endfor %}
-            {% endif %}
           </a>
+          {% if refs %}
+            {% for ref in refs %}
+              <span class="label label-info">{{ ref|pretty_ref }}</span>
+            {% endfor %}
+          {% endif %}
         </td>
         <td>
           {{ commit.committer|committer }}
@@ -59,4 +61,15 @@
 
   {% include "greta/_paginator.html" with page=log %}
 
+{% endblock %}
+
+{% block script %}
+<script>
+  $(".commit-row").each(function(i, e){
+    var next = $(this).attr("href");
+    $(this).click(function(){
+      document.location.href = next;
+    });
+  });
+</script>
 {% endblock %}
