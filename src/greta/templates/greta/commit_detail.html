@@ -5,9 +5,9 @@
 {% block content %}
   {% include "greta/_tabs.html" %}
 
-  <div class="row">
-    <div class="span5 well">
-      <h3>Commit Details</h3>
+  <div class="row-fluid">
+    <div class="span9 well">
+      <h2>Commit</h2>
       <table class="table">
         <tbody>
           <tr>
@@ -19,17 +19,15 @@
             <td>{{ commit.committer|committer }}</td>
           </tr>
           <tr>
-            <td>Committed</td>
+            <td>Commit Time</td>
             <td>{{ commit.commit_time|to_datetime }}</td>
           </tr>
         </tbody>
       </table>
+      <div style="word-wrap:break-word;">
+        {{ commit.message|commit_message }}
+      </div>
     </div>
-    <div class="span6 well">
-      <h3>Commit Message</h3>
-      <p>{{ commit.message|commit_message }}</p>
-    </div>
-
   </div>
 
   {% for filename, diff in changes %}
