@@ -132,4 +132,4 @@ def pairs(lst):
 
 def split_diff(diff_string):
     """Splits a diff into a list of pairs: (file name, diff)"""
-    return pairs(DIFF_LINE_RE.split(diff_string)[1:])
+    return list(pairs(DIFF_LINE_RE.split(diff_string)[1:]))
