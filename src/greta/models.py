@@ -106,7 +106,6 @@ class Repository(models.Model):
     def get_tree(self, ref, tree_path=''):
         obj = self.repo[ref]
         if isinstance(obj, Tag):
-            print obj.message
             _, obj_id = obj.object
             obj = self.repo[obj_id]
         return self._subtree(self.repo[obj.tree], tree_path)
