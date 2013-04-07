@@ -11,6 +11,7 @@ from .tasks import setup_repo, archive_old_repository
 
 from celery.result import AsyncResult
 from dulwich.repo import Repo as DulwichRepo
+from dulwich.objects import Tag
 from collections import OrderedDict
 
 import os
@@ -103,7 +104,12 @@ class Repository(models.Model):
         return tree_dict
 
     def get_tree(self, ref, tree_path=''):
-        return self._subtree(self.repo[self.repo[ref].tree], tree_path)
+        obj = self.repo[ref]
+        if isinstance(obj, Tag):
+            print obj.message
+            _, obj_id = obj.object
+            obj = self.repo[obj_id]
+        return self._subtree(self.repo[obj.tree], tree_path)
 
     def get_blob(self, ref, blob_path):
         tree_path = os.path.dirname(blob_path)
