@@ -24,18 +24,38 @@
           </tr>
         </tbody>
       </table>
-      <div style="word-wrap:break-word;">
+      <div style="word-wrap:break-word;font-style:italic;">
         {{ commit.message|commit_message }}
       </div>
     </div>
   </div>
 
-  {% for filename, diff in changes %}
-    <h3>{{ filename|pretty_diffname }}</h3>
-    {{ diff|pygmentize_diff }}
-    {% if not forloop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
+  <ul class="nav nav-tabs" id="files">
+    {% for filename, diff in changes %}
+      <li {% if forloop.first %}class="active"{% endif %}>
+        <a href="#file{{forloop.counter}}">{{ filename|pretty_diffname }}</a>
+      </li>
+    {% endfor %}
+  </ul>
 
+  <div class="tab-content">
+    {% for filename, diff in changes %}
+      <div class="tab-pane {% if forloop.first %}active{% endif %}" id="file{{forloop.counter}}">
+        {{ diff|pygmentize_diff }}
+      </div>
+    {% endfor %}
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script>
+    $(function(){
+      $('#files a:first').tab('show');
+      $('#files a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+      });
+    });
+  </script>
 {% endblock %}
