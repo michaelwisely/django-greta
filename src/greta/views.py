@@ -10,6 +10,8 @@ from django.conf import settings
 
 from guardian.mixins import PermissionRequiredMixin
 
+from dulwich.objects import Tag, Commit
+
 from .models import Repository
 from .utils import is_binary, image_mimetype
 
@@ -136,8 +138,20 @@ class CommitDetail(GretaMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(CommitDetail, self).get_context_data(**kwargs)
         try:
-            context['changes'] = self.object.show(self.kwargs['ref'])
-            context['commit'] = self.object.get_commit(self.kwargs['ref'])
+            repo = self.object
+            context['changes'] = repo.show(self.kwargs['ref'])
+            context['commit'] = repo.get_commit(self.kwargs['ref'])
+
+            # Find tags that point to this commit
+            context['tags'] = []
+            for ref in repo.tags:
+                obj, obj_id = repo.repo[ref], None
+                if isinstance(obj, Tag):
+                    _, obj_id = obj.object
+                if isinstance(obj, Commit):
+                    obj_id = obj.id
+                if context['commit'].id == obj_id:
+                    context['tags'].append((ref, obj))
         except KeyError:
             raise Http404("Bad ref")
         return context

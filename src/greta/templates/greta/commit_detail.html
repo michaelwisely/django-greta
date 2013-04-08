@@ -5,28 +5,41 @@
 {% block content %}
   {% include "greta/_tabs.html" %}
 
-  <div class="row-fluid">
-    <div class="span9 well">
-      <h2>Commit</h2>
-      <table class="table">
-        <tbody>
+  <div class="well">
+    <h2>Commit</h2>
+    <table class="table">
+      <tbody>
+        <tr>
+          <td>Commit ID</td>
+          <td>{{ commit.id }}</td>
+        </tr>
+        <tr>
+          <td>Commiter</td>
+          <td>{{ commit.committer|committer }}</td>
+        </tr>
+        <tr>
+          <td>Commit Time</td>
+          <td>{{ commit.commit_time|to_datetime }}</td>
+        </tr>
+        {% if tags %}
           <tr>
-            <td>Commit ID</td>
-            <td>{{ commit.id }}</td>
+            <td>Tags</td>
+            <td>
+              <ul class="unstyled"1>
+              {% for ref, obj in tags %}
+                <li>
+                  <span class="label label-info">{{ ref|pretty_ref }}</span>
+                  <i>{{ obj.message }}</i>
+                </li>
+              {% endfor %}
+              </ul>
+            </td>
           </tr>
-          <tr>
-            <td>Commiter</td>
-            <td>{{ commit.committer|committer }}</td>
-          </tr>
-          <tr>
-            <td>Commit Time</td>
-            <td>{{ commit.commit_time|to_datetime }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div style="word-wrap:break-word;font-style:italic;">
-        {{ commit.message|commit_message }}
-      </div>
+        {% endif %}
+      </tbody>
+    </table>
+    <div style="word-wrap:break-word;font-style:italic;">
+      {{ commit.message|commit_message }}
     </div>
   </div>
 
