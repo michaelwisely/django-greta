@@ -1,6 +1,7 @@
 from celery import task
 from dulwich.repo import Repo as DulwichRepo
 from dulwich.errors import NotGitRepository
+from celery.result import AsyncResult
 
 from .utils import archive_directory, archive_repository
 
@@ -38,6 +39,14 @@ def setup_repo(instance):
     logger.info("Created path for repo at %s", instance.path)
 
     if instance.forked_from is not None:
+        # Make sure the repo we're forking from exists
+        task_id = instance.forked_from.task_id
+        if task_id is not None:
+            # Wait for the repo to be created
+            msg = "Wait for {}'s parent repository ({}) to be created..."
+            logger.info(msg.format(instance.name, instance.forked_from.name))
+            AsyncResult(task_id).wait()
+
         # If we're forking a repo, clone from the parent
         logger.info("Cloning repo to %s", instance.path)
         instance.forked_from.repo.clone(instance.path,
