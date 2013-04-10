@@ -15,7 +15,7 @@ setup(name="django-greta",
                         'dulwich>=0.8.6',
                         'factory_boy==1.2.0',
                         'django-guardian==1.0.4',
-                        'django-celery==3.0.11',
+                        'django-celery==3.0.17',
                         'South==0.7.6',
                         ],
       )
