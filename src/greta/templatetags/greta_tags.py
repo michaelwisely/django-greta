@@ -47,7 +47,7 @@ def committer(value):
 def commit_message(value):
     value = escape(value)
     title, _, body = value.partition('\n')
-    message = "<h4>{0}</h4> {1}".format(title, body)
+    message = u"<h4>{0}</h4> {1}".format(title, body)
     return mark_safe(message)
 
 
