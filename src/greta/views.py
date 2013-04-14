@@ -143,15 +143,17 @@ class CommitDetail(GretaMixin, DetailView):
             context['commit'] = repo.get_commit(self.kwargs['ref'])
 
             # Find tags that point to this commit
+            # tag_dict maps tag names ('refs/tags/...') to sha's
+            tag_dict = repo.repo.refs.as_dict()
             context['tags'] = []
-            for ref in repo.tags:
-                obj, obj_id = repo.repo[ref], None
+            for tag, tag_id in [(t, tag_dict[t]) for t in repo.tags]:
+                obj, obj_id = repo.repo[tag_id], None
                 if isinstance(obj, Tag):
                     _, obj_id = obj.object
                 if isinstance(obj, Commit):
                     obj_id = obj.id
                 if context['commit'].id == obj_id:
-                    context['tags'].append((ref, obj))
+                    context['tags'].append((tag, obj))
         except KeyError:
             raise Http404("Bad ref")
         return context
