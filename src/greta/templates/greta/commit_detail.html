@@ -1,0 +1,74 @@
+{% extends "greta/greta_base.html" %}
+{% load url from future %}
+{% load greta_tags %}
+
+{% block content %}
+  {% include "greta/_tabs.html" %}
+
+  <div class="well">
+    <h2>Commit</h2>
+    <table class="table">
+      <tbody>
+        <tr>
+          <td>Commit ID</td>
+          <td>{{ commit.id }}</td>
+        </tr>
+        <tr>
+          <td>Commiter</td>
+          <td>{{ commit.committer|committer }}</td>
+        </tr>
+        <tr>
+          <td>Commit Time</td>
+          <td>{{ commit.commit_time|to_datetime }}</td>
+        </tr>
+        {% if tags %}
+          <tr>
+            <td>Tags</td>
+            <td>
+              <ul class="unstyled"1>
+              {% for ref, obj in tags %}
+                <li>
+                  <span class="label label-info">{{ ref|pretty_ref }}</span>
+                  <i>{{ obj.message }}</i>
+                </li>
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+    <div style="word-wrap:break-word;font-style:italic;">
+      {{ commit.message|commit_message }}
+    </div>
+  </div>
+
+  <ul class="nav nav-tabs" id="files">
+    {% for filename, diff in changes %}
+      <li {% if forloop.first %}class="active"{% endif %}>
+        <a href="#file{{forloop.counter}}">{{ filename|pretty_diffname }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div class="tab-content">
+    {% for filename, diff in changes %}
+      <div class="tab-pane {% if forloop.first %}active{% endif %}" id="file{{forloop.counter}}">
+        {{ diff|pygmentize_diff }}
+      </div>
+    {% endfor %}
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script>
+    $(function(){
+      $('#files a:first').tab('show');
+      $('#files a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+      });
+    });
+  </script>
+{% endblock %}

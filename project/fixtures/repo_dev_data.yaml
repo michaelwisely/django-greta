@@ -1,0 +1,12 @@
+- fields: {default_branch: master, forked_from: null, name: alice_repo.git, owner_id: null,
+    owner_type: null}
+  model: greta.repository
+  pk: 1
+- fields: {default_branch: master, forked_from: null, name: bob_repo.git, owner_id: null,
+    owner_type: null}
+  model: greta.repository
+  pk: 2
+- fields: {default_branch: master, forked_from: null, name: superuser_repo.git, owner_id: null,
+    owner_type: null}
+  model: greta.repository
+  pk: 3

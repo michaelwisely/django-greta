@@ -1,0 +1,19 @@
+{% load url from future %}
+{% load greta_tags %}
+
+<h2 id="tree-paths">
+  <a href="{% url 'tree_detail' pk=repo.pk ref=ref path="" %}">
+    {{ repo.name }}/
+  </a>
+  {% for dir in path|subpaths %}
+    {% if not forloop.last %}
+      <a href="{% url 'tree_detail' pk=repo.pk ref=ref path=dir %}">
+        {{ dir|basename }}/
+      </a>
+    {% endif %}
+
+    {% if forloop.last %}
+      {{ dir|basename }}
+    {% endif %}
+  {% endfor %}
+</h2>

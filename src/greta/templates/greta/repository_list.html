@@ -1,0 +1,25 @@
+{% extends "greta/greta_base.html" %}
+{% load url from future %}
+
+{% block page-header%}
+  <div class="page-header">
+    <h1>Repositories</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% for repo in repos %}
+    {% if forloop.first %}
+      <ul class="nav nav-tabs nav-stacked">
+    {% endif %}
+
+    <li><a href="{{ repo.get_absolute_url }}">{{ repo }}</a></li>
+
+    {% if forloop.last %}
+      </ul>
+    {% endif %}
+
+  {% empty %}
+    <h2>No repos, yet.</h2>
+  {% endfor %}
+{% endblock %}

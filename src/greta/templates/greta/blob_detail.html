@@ -1,0 +1,35 @@
+{% extends "greta/greta_base.html" %}
+{% load url from future %}
+{% load greta_tags %}
+
+{% block link %}
+  <style>
+    #tree-paths a {
+    float: left;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% include "greta/_tabs.html" %}
+
+  {% include "greta/_path_breadcrumbs.html" %}
+
+  <div id="blob">
+    {% if blob_is_binary  %}
+      {% if blob_is_image %}
+        <div class="well">
+          <img src="{% url 'image_detail' pk=repo.pk ref=ref path=path %}"
+               alt="{{ path }}" class="img-polaroid" />
+        </div>
+      {% else %}
+        <p>
+          Looks like this file is binary.
+        </p>
+      {% endif %}
+    {% else %}
+      {{ blob_contents|pygmentize_blob:path }}
+    {% endif %}
+  </div>
+
+{% endblock %}

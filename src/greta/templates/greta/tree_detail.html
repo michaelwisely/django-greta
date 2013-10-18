@@ -1,0 +1,53 @@
+{% extends "greta/greta_base.html" %}
+{% load url from future %}
+{% load greta_tags %}
+
+{% block link %}
+  <style>
+    #tree-paths a {
+    float: left;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% include "greta/_tabs.html" %}
+
+  {% include "greta/_path_breadcrumbs.html" %}
+
+  {% for item, object in tree.iteritems %}
+    {% if forloop.first %}
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>
+              Item
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+      {% endif %}
+
+      <tr>
+        <td>
+          {% if object|is_tree %}
+            <a href="{% url 'tree_detail' pk=repo.pk ref=ref path=item %}">
+              <i class="icon-folder-open"></i> {{ item|basename }}/
+            </a>
+          {% endif %}
+          {% if object|is_blob %}
+            <a href="{% url 'blob_detail' pk=repo.pk ref=ref path=item %}">
+              {{ item|basename }}
+            </a>
+          {% endif %}
+        </td>
+      </tr>
+
+      {% if forloop.last %}
+        </tbody>
+      </table>
+    {% endif %}
+    {% empty %}
+      <h2>No files, yet.</h2>
+    {% endfor %}
+  {% endblock %}
