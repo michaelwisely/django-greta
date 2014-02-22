@@ -40,51 +40,39 @@ class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
             context = RequestContext(self.request, {})
             return render_to_response("greta/repository_not_ready.html",
                                       context)
-        self.validate_ref(self.kwargs['ref'])
+        self.full_ref = self.validate_ref(self.kwargs['ref'])
         return super(GretaMixin, self).get(*args, **kwargs)
 
     def validate_ref(self, ref):
         sha_match = self.sha_re.match(ref)
         if sha_match is not None:
             # If it's a valid sha1 hash, we're good.
-            return
+            return sha_match.group(0)
 
         repo = self.get_object()
         if not ref.startswith('refs'):
             # If it doesn't start with 'refs/heads, we'll assume it's
             # a branch name.
             ref = 'refs/heads/' + ref
+
+        # If it's in the list of refs, we're solid.
         if ref in repo.repo.get_refs():
-            # If it's in the list of refs, we're solid.
-            return
+            return ref
 
         # If the repo's empty, let them through
         if len(repo.repo.get_refs()) == 0:
-            return
+            return "empty"
 
         # If we haven't returned yet, the ref must be no good.
         logger.debug('Invalid ref: "%s"' % ref)
         raise Http404("No such ref.")
 
-    def update_ref(self):
-        default_ref = 'refs/heads/' + self.object.default_branch
-        current_ref = self.request.session.get('current_ref', default_ref)
-
-        new_ref = self.request.GET.get('ref', None)
-
-        if new_ref in self.object.repo.get_refs():
-            current_ref = new_ref
-
-        self.request.session['current_ref'] = current_ref
-
     def get_context_data(self, **kwargs):
         context = super(GretaMixin, self).get_context_data(**kwargs)
 
-        # add current_ref and ref_type to user's session
-        self.update_ref()
-
         # Add ref to contect
         context['ref'] = self.kwargs['ref']
+        context['full_ref'] = self.full_ref
 
         return context
 
@@ -97,10 +85,6 @@ class RepositoryList(ListView):
 
 class RedirectToDefaultBranch(RedirectView):
     def get_redirect_url(self, **kwargs):
-        try:
-            self.request.session.pop('current_ref')
-        except KeyError:
-            pass
         repo = get_object_or_404(Repository, pk=self.kwargs['pk'])
         return repo.get_absolute_url()
 
@@ -113,7 +97,7 @@ class RepositoryDetail(GretaMixin, DetailView):
         context = super(RepositoryDetail, self).get_context_data(**kwargs)
 
         try:
-            commits = self.object.get_log(ref=self.kwargs['ref'])
+            commits = self.object.get_log(ref=self.full_ref)
         except KeyError:
             raise Http404("Bad ref")
 
@@ -139,8 +123,8 @@ class CommitDetail(GretaMixin, DetailView):
         context = super(CommitDetail, self).get_context_data(**kwargs)
         try:
             repo = self.object
-            context['changes'] = repo.show(self.kwargs['ref'])
-            context['commit'] = repo.get_commit(self.kwargs['ref'])
+            context['changes'] = repo.show(self.full_ref)
+            context['commit'] = repo.get_commit(self.full_ref)
 
             # Find tags that point to this commit
             # tag_dict maps tag names ('refs/tags/...') to sha's
@@ -166,9 +150,9 @@ class TreeDetail(GretaMixin, DetailView):
         context = super(TreeDetail, self).get_context_data(**kwargs)
         try:
             context['path'] = self.kwargs['path']
-            context['tree'] = self.object.get_tree(self.kwargs['ref'],
+            context['tree'] = self.object.get_tree(self.full_ref,
                                                    self.kwargs['path'])
-            context['commit'] = self.object.get_commit(self.kwargs['ref'])
+            context['commit'] = self.object.get_commit(self.full_ref)
         except KeyError:
             raise Http404("Bad ref")
         except AttributeError:
@@ -184,7 +168,7 @@ class BlobDetail(GretaMixin, DetailView):
         context = super(BlobDetail, self).get_context_data(**kwargs)
         try:
             path = self.kwargs['path']
-            blob = self.object.get_blob(self.kwargs['ref'], path)
+            blob = self.object.get_blob(self.full_ref, path)
             blob_contents = blob.as_raw_string()
 
             context['path'] = path
@@ -192,7 +176,7 @@ class BlobDetail(GretaMixin, DetailView):
             context['blob_contents'] = blob_contents
             context['blob_is_binary'] = is_binary(blob_contents)
             context['blob_is_image'] = image_mimetype(path)
-            context['commit'] = self.object.get_commit(self.kwargs['ref'])
+            context['commit'] = self.object.get_commit(self.full_ref)
         except KeyError:
             raise Http404("Bad ref")
         return context

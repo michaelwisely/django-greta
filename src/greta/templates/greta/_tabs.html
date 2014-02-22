@@ -1,7 +1,7 @@
 {% load url from future%}
 {% load greta_tags %}
 
-{% with current_ref=request.session.current_ref %}
+{% with current_ref=full_ref %}
   <ul class="nav nav-pills">
     <li {% if log %}class="active"{% endif %}>
       <a href="{% url 'repo_detail' pk=repo.pk ref=current_ref %}">
@@ -43,7 +43,7 @@
             {% else %}
               <li>
             {% endif %}
-            <a href="{% url 'repo_detail' pk=repo.pk ref=branch %}?ref={{ branch }}">
+            <a href="{% url 'repo_detail' pk=repo.pk ref=branch %}">
               {{ branch|pretty_ref }}
             </a>
               </li>
@@ -67,7 +67,7 @@
             {% else %}
               <li>
             {% endif %}
-            <a href="{% url 'repo_detail' pk=repo.pk ref=tag %}?reftype=tag&ref={{ tag }}">
+            <a href="{% url 'repo_detail' pk=repo.pk ref=tag %}">
               {{ tag|pretty_ref }}
             </a>
               </li>
