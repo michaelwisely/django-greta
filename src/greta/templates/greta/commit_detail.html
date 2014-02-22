@@ -43,7 +43,7 @@
     </div>
   </div>
 
-  <ul class="nav nav-tabs" id="files">
+  <ul class="nav nav-pills" id="files">
     {% for filename, diff in changes %}
       <li {% if forloop.first %}class="active"{% endif %}>
         <a href="#file{{forloop.counter}}">{{ filename|pretty_diffname }}</a>

@@ -10,7 +10,7 @@
 {% block content %}
   {% for repo in repos %}
     {% if forloop.first %}
-      <ul class="nav nav-tabs nav-stacked">
+      <ul class="nav nav-pills nav-stacked">
     {% endif %}
 
     <li><a href="{{ repo.get_absolute_url }}">{{ repo }}</a></li>

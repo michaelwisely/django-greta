@@ -3,11 +3,11 @@
 
 {% block content %}
   <div class="row">
-    <div class="span6 offset3 well">
+    <div class="well col-lg-offset-3 col-sm-6 col-md-6">
       <form method="post">
         {% csrf_token %}
         {{ form|crispy }}
-        <input type="submit" value="Submit" />
+        <input type="submit" value="Submit" class="form-control">
       </form>
     </div>
   </div>
