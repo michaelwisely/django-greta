@@ -65,6 +65,12 @@ class Repository(models.Model):
             self._dulwich_repo = DulwichRepo(self.path)
         return self._dulwich_repo
 
+    @property
+    def task(self):
+        if self.task_id is not None:
+            return AsyncResult(self.task_id)
+        return None
+
     def _filter_branch(self, ref_prefix=''):
         refs = self.repo.get_refs().keys()
         return [r for r in refs if r.startswith(ref_prefix)]
@@ -78,9 +84,9 @@ class Repository(models.Model):
         return self._filter_branch('refs/tags/')
 
     def is_ready(self):
-        if self.task_id is None:
+        if self.task is None:
             return True
-        if AsyncResult(self.task_id).ready():
+        if self.task.ready():
             self.task_id = None
             self.save()
             return True
