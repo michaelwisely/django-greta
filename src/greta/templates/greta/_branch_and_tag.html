@@ -1,57 +1,61 @@
 {% load greta_tags %}
 
 <div class="btn-group pull-right">
-  {% if repo.branches %}
-    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-      Branches
-      &nbsp;
-      {% if full_ref|is_branch %}
-        <span class="label label-primary">
-          {{ full_ref|pretty_ref|truncatechars:10 }}
-        </span>
-      {% endif %}
-      &nbsp;
-      <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu">
-      {% for branch in repo.branches %}
-        <li class="{% if full_ref == branch %}active{% endif %}">
-          <a href="{% url 'repo_detail' pk=repo.pk ref=branch %}">
-            {{ branch|pretty_ref }}
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <button type="button" class="btn btn-default" disabled="disabled">
-      Branches <span class="caret"></span>
-    </button>
-  {% endif %}
+  <div class="btn-group">
+    {% if repo.branches %}
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        Branches
+        &nbsp;
+        {% if full_ref|is_branch %}
+          <span class="label label-primary">
+            {{ full_ref|pretty_ref|truncatechars:10 }}
+          </span>
+        {% endif %}
+        &nbsp;
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        {% for branch in repo.branches %}
+          <li class="{% if full_ref == branch %}active{% endif %}">
+            <a href="{% url 'repo_detail' pk=repo.pk ref=branch %}">
+              {{ branch|pretty_ref }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <button type="button" class="btn btn-default" disabled="disabled">
+        Branches <span class="caret"></span>
+      </button>
+    {% endif %}
+  </div>
 
-  {% if repo.tags %}
-    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-      Tags
-      &nbsp;
-      {% if full_ref|is_tag %}
-        <span class="label label-primary">
-          {{ full_ref|pretty_ref|truncatechars:10 }}
-        </span>
-      {% endif %}
-      &nbsp;
-      <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu">
-      {% for tag in repo.tags %}
-        <li class="{% if full_ref == tag %}active{% endif %}">
-          <a href="{% url 'repo_detail' pk=repo.pk ref=tag %}">
-            {{ tag|pretty_ref }}
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <button type="button" class="btn btn-default" disabled="disabled">
-      Tags <span class="caret"></span>
-    </button>
-  {% endif %}
+  <div class="btn-group">
+    {% if repo.tags %}
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        Tags
+        &nbsp;
+        {% if full_ref|is_tag %}
+          <span class="label label-primary">
+            {{ full_ref|pretty_ref|truncatechars:10 }}
+          </span>
+        {% endif %}
+        &nbsp;
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        {% for tag in repo.tags %}
+          <li class="{% if full_ref == tag %}active{% endif %}">
+            <a href="{% url 'repo_detail' pk=repo.pk ref=tag %}">
+              {{ tag|pretty_ref }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <button type="button" class="btn btn-default" disabled="disabled">
+        Tags <span class="caret"></span>
+      </button>
+    {% endif %}
+  </div>
 </div>
