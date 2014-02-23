@@ -21,14 +21,34 @@
           <td>Commit Time</td>
           <td>{{ commit.commit_time|to_datetime }}</td>
         </tr>
+        {% if branches %}
+          <tr>
+            <td>Branches</td>
+            <td>
+              <ul class="list-unstyled">
+              {% for ref, obj in branches %}
+                <li>
+                  <a class="btn btn-xs btn-info"
+                     href="{% url 'repo_detail' repo.id ref %}">
+                    {{ ref|pretty_ref }}
+                  </a>
+                </li>
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
+        {% endif %}
         {% if tags %}
           <tr>
             <td>Tags</td>
             <td>
-              <ul class="unstyled"1>
+              <ul class="list-unstyled">
               {% for ref, obj in tags %}
                 <li>
-                  <span class="label label-info">{{ ref|pretty_ref }}</span>
+                  <a class="btn btn-xs btn-danger"
+                     href="{% url 'repo_detail' repo.id ref %}">
+                    {{ ref|pretty_ref }}
+                  </a>
                   <i>{{ obj.message }}</i>
                 </li>
               {% endfor %}
