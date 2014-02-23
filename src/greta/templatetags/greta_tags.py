@@ -72,7 +72,7 @@ def clean_ref_string(value):
 @register.filter
 @stringfilter
 def is_branch(value):
-    return value.startswith('refs/heads/')
+    return value.startswith('refs/heads/') or value == "HEAD"
 
 
 @register.filter
