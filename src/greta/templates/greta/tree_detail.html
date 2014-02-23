@@ -32,7 +32,7 @@
         <td>
           {% if object|is_tree %}
             <a href="{% url 'tree_detail' pk=repo.pk ref=ref path=item %}">
-              <i class="icon-folder-open"></i> {{ item|basename }}/
+              <i class="fa fa-folder-open-o"></i> {{ item|basename }}/
             </a>
           {% endif %}
           {% if object|is_blob %}
