@@ -44,20 +44,32 @@ class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
         return super(GretaMixin, self).get(*args, **kwargs)
 
     def validate_ref(self, ref):
+        repo = self.get_object()
+
+        if ref == "HEAD":
+            ref = repo.repo.head()
+
         sha_match = self.sha_re.match(ref)
         if sha_match is not None:
             # If it's a valid sha1 hash, we're good.
-            return sha_match.group(0)
+            sha = sha_match.group(0)
+            for ref, ref_sha in repo.repo.refs.as_dict().iteritems():
+                if sha == ref_sha:
+                    return ref
+            return sha
 
-        repo = self.get_object()
         if not ref.startswith('refs'):
             # If it doesn't start with 'refs/heads, we'll assume it's
             # a branch name.
             ref = 'refs/heads/' + ref
 
-        # If it's in the list of refs, we're solid.
-        if ref in repo.repo.get_refs():
+        try:
+            # If the ref maps to a sha without throwing an exception,
+            # it's valid
+            repo.repo.refs[ref]
             return ref
+        except KeyError:
+            pass
 
         # If the repo's empty, let them through
         if len(repo.repo.get_refs()) == 0:
@@ -119,25 +131,45 @@ class RepositoryDetail(GretaMixin, DetailView):
 class CommitDetail(GretaMixin, DetailView):
     template_name = "greta/commit_detail.html"
 
+    def find_tags(self, commit, repo):
+        """
+        Find tags that point to this commit
+        ref_dict maps tag names ('refs/tags/...') to sha's
+        """
+        ref_dict = repo.repo.refs.as_dict()
+        tags = []
+        for tag, tag_id in [(t, ref_dict[t]) for t in repo.tags]:
+            obj, obj_id = repo.repo[tag_id], None
+            if isinstance(obj, Tag):
+                _, obj_id = obj.object
+            if isinstance(obj, Commit):
+                obj_id = obj.id
+            if commit.id == obj_id:
+                tags.append((tag, obj))
+        return tags
+
+    def find_branches(self, commit, repo):
+        """
+        Find branches that point to this commit
+        ref_dict maps tag names ('refs/tags/...') to sha's
+        """
+        ref_dict = repo.repo.refs.as_dict()
+        branches = []
+        for branch, branch_id in [(b, ref_dict[b]) for b in repo.branches]:
+            obj = repo.repo[branch_id]
+            if commit.id == obj.id:
+                branches.append((branch, obj))
+        return branches
+
     def get_context_data(self, **kwargs):
         context = super(CommitDetail, self).get_context_data(**kwargs)
         try:
             repo = self.object
             context['changes'] = repo.show(self.full_ref)
             context['commit'] = repo.get_commit(self.full_ref)
+            context['tags'] = self.find_tags(context['commit'], repo)
+            context['branches'] = self.find_branches(context['commit'], repo)
 
-            # Find tags that point to this commit
-            # tag_dict maps tag names ('refs/tags/...') to sha's
-            tag_dict = repo.repo.refs.as_dict()
-            context['tags'] = []
-            for tag, tag_id in [(t, tag_dict[t]) for t in repo.tags]:
-                obj, obj_id = repo.repo[tag_id], None
-                if isinstance(obj, Tag):
-                    _, obj_id = obj.object
-                if isinstance(obj, Commit):
-                    obj_id = obj.id
-                if context['commit'].id == obj_id:
-                    context['tags'].append((tag, obj))
         except KeyError:
             raise Http404("Bad ref")
         return context

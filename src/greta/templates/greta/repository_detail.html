@@ -28,7 +28,11 @@
       {% endif %}
 
       <tr class="commit-row"
-          href="{% url 'commit_detail' pk=repo.pk ref=commit.id %}"
+          {% if refs %}
+            href="{% url 'commit_detail' pk=repo.pk ref=refs.0|clean_ref_string %}"
+          {% else %}
+            href="{% url 'commit_detail' pk=repo.pk ref=commit.id %}"
+          {% endif %}
           style="cursor: pointer;">
         <td>
           <a href="{% url 'commit_detail' pk=repo.pk ref=commit.id %}">
@@ -36,7 +40,10 @@
           </a>
           {% if refs %}
             {% for ref in refs %}
-              <span class="label label-info">{{ ref|pretty_ref }}</span>
+              <a href="{% url 'commit_detail' pk=repo.pk ref=ref|clean_ref_string %}"
+                 class="btn btn-xs btn-{% if 'tag:' in ref %}danger{% else %}info{% endif%}">
+                {{ ref|pretty_ref }}
+              </a>
             {% endfor %}
           {% endif %}
         </td>

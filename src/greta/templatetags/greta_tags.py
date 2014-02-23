@@ -60,11 +60,19 @@ def pretty_ref(value):
         value = format(value[10:])
     return value
 
+@register.filter
+@stringfilter
+def clean_ref_string(value):
+    match = re.match(r'^tag: (.*)$', value)
+    if match is not None:
+        return "refs/tags/" + match.group(1)
+    return value
+
 
 @register.filter
 @stringfilter
 def is_branch(value):
-    return value.startswith('refs/heads/')
+    return value.startswith('refs/heads/') or value == "HEAD"
 
 
 @register.filter

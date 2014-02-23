@@ -11,7 +11,7 @@ from .tasks import setup_repo, archive_old_repository
 
 from celery.result import AsyncResult
 from dulwich.repo import Repo as DulwichRepo
-from dulwich.objects import Tag
+from dulwich.objects import Commit, Tag
 from collections import OrderedDict
 
 import os
@@ -93,7 +93,12 @@ class Repository(models.Model):
         return False
 
     def get_commit(self, ref):
-        return self.repo[ref]
+        obj = self.repo[ref]
+        if isinstance(obj, Tag):
+            _, ref = obj.object
+            obj = self.repo[ref]
+        assert isinstance(obj, Commit)
+        return obj
 
     def _subtree(self, tree, tree_path=''):
         tree_dict = OrderedDict(
