@@ -44,20 +44,32 @@ class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
         return super(GretaMixin, self).get(*args, **kwargs)
 
     def validate_ref(self, ref):
+        repo = self.get_object()
+
+        if ref == "HEAD":
+            ref = repo.repo.head()
+
         sha_match = self.sha_re.match(ref)
         if sha_match is not None:
             # If it's a valid sha1 hash, we're good.
-            return sha_match.group(0)
+            sha = sha_match.group(0)
+            for ref, ref_sha in repo.repo.refs.as_dict().iteritems():
+                if sha == ref_sha:
+                    return ref
+            return sha
 
-        repo = self.get_object()
         if not ref.startswith('refs'):
             # If it doesn't start with 'refs/heads, we'll assume it's
             # a branch name.
             ref = 'refs/heads/' + ref
 
-        # If it's in the list of refs, we're solid.
-        if ref in repo.repo.get_refs():
+        try:
+            # If the ref maps to a sha without throwing an exception,
+            # it's valid
+            repo.repo.refs[ref]
             return ref
+        except KeyError:
+            pass
 
         # If the repo's empty, let them through
         if len(repo.repo.get_refs()) == 0:
