@@ -10,6 +10,7 @@ import os
 import re
 
 DIFF_LINE_RE = re.compile(r'^(diff --git .*)$', flags=re.MULTILINE)
+REF_NAME_RE = re.compile(r'^ *(tag: )?(.*) *$')
 
 import logging
 logger = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ class Commiterator(object):
     line_re = re.compile(r'^([a-f0-9]+)(?: \((.*)\))?$')
 
     def __init__(self, repo, ref=None, skip=0, max_count=-1):
-        command = ['git', 'log', '--format=%H%d',
+        command = ['git', 'log', '--decorate=full', '--format=%H%d',
                    "--skip={0}".format(skip),
                    "--max-count={0}".format(max_count)]
         if ref is not None:
@@ -78,7 +79,7 @@ class Commiterator(object):
         sha = match.group(1)
         refs = match.group(2)
         if refs is not None:
-            refs = [ref.strip() for ref in refs.split(',')]
+            refs = [REF_NAME_RE.match(ref).group(2) for ref in refs.split(',')]
         return (self.repo[sha], refs)
 
     def __len__(self):
