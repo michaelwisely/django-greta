@@ -14,6 +14,9 @@
               Commit
             </th>
             <th>
+              Refs
+            </th>
+            <th>
               Committer
             </th>
             <th>
@@ -38,14 +41,18 @@
           <a href="{% url 'commit_detail' pk=repo.pk ref=commit.id %}">
             {{ commit.id|truncatechars:10 }}
           </a>
-          {% if refs %}
-            {% for ref in refs %}
-              <a href="{% url 'commit_detail' pk=repo.pk ref=ref %}"
-                 class="btn btn-xs btn-{% if ref|is_tag %}danger{% else %}info{% endif%}">
-                {{ ref|pretty_ref }}
-              </a>
-            {% endfor %}
-          {% endif %}
+        </td>
+        <td>
+          <ul class="list-unstyled">
+          {% for ref in refs %}
+            <li>
+            <a href="{% url 'commit_detail' pk=repo.pk ref=ref %}"
+               class="btn btn-xs btn-{% if ref|is_tag %}danger{% else %}info{% endif%}">
+              {{ ref|pretty_ref }}
+            </a>
+            </li>
+          {% endfor %}
+          </ul>
         </td>
         <td>
           {{ commit.committer|committer }}
