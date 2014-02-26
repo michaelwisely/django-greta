@@ -58,6 +58,8 @@ def pretty_ref(value):
         value = value[11:]
     if value.startswith('refs/tags/'):
         value = format(value[10:])
+    if value.startswith('refs/remotes/'):
+        value = value[13:]
     return value
 
 @register.filter
