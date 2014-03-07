@@ -149,11 +149,18 @@ class Repository(models.Model):
 
 
 @receiver(post_save, sender=Repository)
-def create_on_disk_repository(sender, instance, created, **kwargs):
+def create_on_disk_repository(sender, instance, created, raw, **kwargs):
     if created:
         if instance.task_id is not None:
             logger.warning("task_id was already set...")
-        instance.task_id = setup_repo.delay(instance)
+
+        if raw:
+            # If it's fixture data, create it right away
+            setup_repo(instance)
+        else:
+            # Otherwise, create it with celery
+            instance.task_id = setup_repo.delay(instance)
+
         instance.save()
 
 
