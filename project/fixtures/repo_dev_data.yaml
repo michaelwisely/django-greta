@@ -10,3 +10,7 @@
     owner_type: null}
   model: greta.repository
   pk: 3
+- fields: {default_branch: master, description: Fork of alice's repo, forked_from: 1,
+    name: alice-fork.git, owner_id: null, owner_type: null, task_id: null}
+  model: greta.repository
+  pk: 4
