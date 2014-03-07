@@ -15,6 +15,7 @@ bootstrap.py:
 # Destroys existing test database and creates a new one
 db:
 	rm -f var/db/*.db
+	rm -rf var/repos/*.git
 	python bin/django syncdb --noinput
 	python bin/django migrate
 	python bin/django loaddata project/fixtures/*_dev_data.yaml
