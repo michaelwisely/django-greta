@@ -11,6 +11,7 @@ import shutil
 
 
 @override_settings(GRETA_ROOT_DIR=settings.GRETA_ROOT_TEST_DIR)
+@override_settings(CELERY_ALWAYS_EAGER=True)
 class RepoTest(TestCase):
     def setUp(self):
         if os.path.exists(settings.GRETA_ROOT_TEST_DIR):
@@ -20,8 +21,10 @@ class RepoTest(TestCase):
     def test_create_repo(self):
         """Create a repo"""
         repo = RepoFactory.create()
+
         # Check paths
-        self.assertTrue(os.path.exists(repo.path))
+        self.assertTrue(os.path.exists(repo.path),
+                        msg=repo.path + " does not exist")
         self.assertEqual(repo.repo.path, repo.path)
         # No branches or tags yet. It's blank
         self.assertEqual([], repo.branches)
@@ -33,11 +36,12 @@ class RepoTest(TestCase):
         repo = RepoFactory.create(num_commits=2)
         # Master was created
         self.assertEqual(["refs/heads/master"], repo.branches)
-        # derp.txt exists in the tree (look at the definition of RepoFactory)
-        self.assertEqual(["derp.txt"], repo.get_tree('HEAD').keys())
+        # file.txt exists in the tree (look at the definition of RepoFactory)
+        self.assertEqual(["file.txt"], repo.get_tree('HEAD').keys())
 
 
 @override_settings(GRETA_ROOT_DIR=settings.GRETA_ROOT_TEST_DIR)
+@override_settings(CELERY_ALWAYS_EAGER=True)
 class RepoViewsTest(TestCase):
     def setUp(self):
         if os.path.exists(settings.GRETA_ROOT_TEST_DIR):
@@ -52,12 +56,14 @@ class RepoViewsTest(TestCase):
         assign('can_view_repository', self.bob, self.bob_repo)
 
     def assertAuthorized(self, username, password, url):
+        """User can view a repo if they have permissions"""
         self.client.login(username=username, password=password)
         r = self.client.get(url)
         self.assertEqual(200, r.status_code)
         self.client.logout()
 
     def assertUnauthorized(self, username, password, url):
+        """User CANNOT view a repo if they do NOT have permissions"""
         self.client.login(username=username, password=password)
         r = self.client.get(url)
         self.assertEqual(403, r.status_code)
