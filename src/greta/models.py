@@ -151,13 +151,16 @@ class Repository(models.Model):
 @receiver(post_save, sender=Repository)
 def create_on_disk_repository(sender, instance, created, raw, **kwargs):
     if created:
+        logger.debug("Creating repository {} on disk".format(instance.name))
         if instance.task_id is not None:
             logger.warning("task_id was already set...")
 
         if raw:
+            logger.debug("Creating raw repository {} on disk".format(instance.name))
             # If it's fixture data, create it right away
             setup_repo(instance)
         else:
+            logger.debug("Queue repository {} creation task".format(instance.name))
             # Otherwise, create it with celery
             instance.task_id = setup_repo.delay(instance)
 
