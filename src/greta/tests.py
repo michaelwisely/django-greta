@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.conf import settings
 
-from guardian.shortcuts import assign
+from guardian.shortcuts import assign_perm
 
 from .factories import UserFactory, RepoFactory
 
@@ -12,7 +12,7 @@ import shutil
 
 @override_settings(GRETA_ROOT_DIR=settings.GRETA_ROOT_TEST_DIR)
 @override_settings(CELERY_ALWAYS_EAGER=True)
-class RepoTest(TestCase):
+class RepoBasicTest(TestCase):
     def setUp(self):
         if os.path.exists(settings.GRETA_ROOT_TEST_DIR):
             shutil.rmtree(settings.GRETA_ROOT_TEST_DIR)
@@ -29,6 +29,37 @@ class RepoTest(TestCase):
         # No branches or tags yet. It's blank
         self.assertEqual([], repo.branches)
         self.assertEqual([], repo.tags)
+
+    def test_repo_factory(self):
+        """Create a repo with commits"""
+        repo = RepoFactory.create(num_commits=6)
+
+        # Check paths
+        self.assertTrue(os.path.exists(repo.path),
+                        msg=repo.path + " does not exist")
+        self.assertEqual(repo.repo.path, repo.path)
+
+        # Assert we have master, but no tags
+        self.assertEqual(['refs/heads/master'], repo.branches)
+        self.assertEqual([], repo.tags)
+
+        revisions = list(repo.repo.get_walker())
+        self.assertEqual(6, len(revisions))
+
+    def test_fork_repo(self):
+        """Fork a repo"""
+        base = RepoFactory.create(num_commits=5)
+        fork = RepoFactory.create(forked_from=base)
+
+        # Check paths
+        self.assertTrue(os.path.exists(base.path),
+                        msg=base.path + " does not exist")
+        self.assertTrue(os.path.exists(fork.path),
+                        msg=fork.path + " does not exist")
+        self.assertEqual(fork.repo.path, fork.path)
+
+        # Same head as parent
+        self.assertEqual(base.repo.head(), fork.repo.head())
 
     def test_list_branches(self):
         """List branches"""
@@ -52,8 +83,8 @@ class RepoViewsTest(TestCase):
         self.bob = UserFactory.create()
         self.alice_repo = RepoFactory.create(num_commits=3)
         self.bob_repo = RepoFactory.create(num_commits=5)
-        assign('can_view_repository', self.alice, self.alice_repo)
-        assign('can_view_repository', self.bob, self.bob_repo)
+        assign_perm('can_view_repository', self.alice, self.alice_repo)
+        assign_perm('can_view_repository', self.bob, self.bob_repo)
 
     def assertAuthorized(self, username, password, url):
         """User can view a repo if they have permissions"""
