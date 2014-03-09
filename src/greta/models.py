@@ -145,23 +145,52 @@ class Repository(models.Model):
 
 @receiver(post_save, sender=Repository)
 def create_on_disk_repository(sender, instance, created, raw, **kwargs):
-    if created:
-        logger.debug("Creating repository {} on disk".format(instance.name))
-        if instance.task_id is not None:
-            logger.warning("task_id was already set...")
+    """Creates an on-disk git repository for the given Repository
+    instance
 
-        if raw:
-            logger.debug("Creating raw repository {} on disk".format(instance.name))
-            # If it's fixture data, create it right away
-            setup_repo(instance)
-        else:
-            logger.debug("Queue repository {} creation task".format(instance.name))
-            # Otherwise, create it with celery
-            instance.task_id = setup_repo.delay(instance)
+    """
 
+    if not created:
+        # If we didn't JUST create it, we don't need to make a repo for it.
+        return
+
+    logger.debug("Creating repository {} on disk".format(instance.name))
+
+    # Make sure the task_id isn't set yet
+    if instance.task_id is not None:
+        logger.warning("task_id was already set...")
+
+    # If it's fixture data, create it right away
+    if raw:
+        logger.debug("Creating raw repository {} on disk".format(instance.name))
+        setup_repo(instance.pk)
+        return
+
+    # Otherwise, create it with celery
+    logger.debug("Queue creation of {}".format(instance.name))
+
+    # If there's no parent repo, just start the task
+    if instance.forked_from is None:
+        logger.debug("No parent. Creating {}".format(instance.name))
+        instance.task_id = setup_repo.delay(instance.pk)
         instance.save()
+        return
+
+    # If the parent repo is ready on disk, we can fork it
+    if instance.forked_from.created_on_disk:
+        logger.debug("Parent ready. Creating {}".format(instance.name))
+        instance.task_id = setup_repo.delay(instance.pk)
+        instance.save()
+        return
+
+    # If the parent repo is not ready, and it STILL has NOT been
+    # created on disk, then the parent will create this instance as
+    # soon as it finishes itself.
+    logger.debug("Parent NOT ready. Wait to create {}".format(instance.name))
+
+    return
 
 
 @receiver(post_delete, sender=Repository)
 def archive_repository_on_delete(sender, instance, **kwargs):
-    archive_old_repository.delay(instance)
+    archive_old_repository.delay(instance.pk)

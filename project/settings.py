@@ -21,7 +21,9 @@ except ImportError:
 # Django celery settings
 import djcelery
 djcelery.setup_loader()
-CELERY_ACCEPT_CONTENT = ['pickle']
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 # Default to the django backend if necessary.
 # ... this is the only way i can find to see if
