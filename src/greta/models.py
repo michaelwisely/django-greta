@@ -35,7 +35,6 @@ class Repository(models.Model):
     forked_from = models.ForeignKey("self", blank=True, null=True,
                                     related_name="forks",
                                     on_delete=models.SET_NULL)
-    task_id = models.CharField(max_length=60, null=True, editable=False)
     created_on_disk = models.BooleanField(default=False, editable=False)
 
     # Generic Foreign  key to an owning object
@@ -66,12 +65,6 @@ class Repository(models.Model):
             self._dulwich_repo = DulwichRepo(self.path)
         return self._dulwich_repo
 
-    @property
-    def task(self):
-        if self.task_id is not None:
-            return AsyncResult(self.task_id)
-        return None
-
     def _filter_branch(self, ref_prefix=''):
         refs = self.repo.get_refs().keys()
         return [r for r in refs if r.startswith(ref_prefix)]
@@ -97,7 +90,7 @@ class Repository(models.Model):
 
     def _subtree(self, tree, tree_path=''):
         tree_dict = OrderedDict(
-            (path, sha) for _, path, sha in tree.entries()
+            (path, sha) for path, _mode, sha in tree.iteritems()
         )
         if tree_path:
             top_dir, _, tree_path = tree_path.partition(os.path.sep)
@@ -149,16 +142,11 @@ def create_on_disk_repository(sender, instance, created, raw, **kwargs):
     instance
 
     """
-
     if not created:
         # If we didn't JUST create it, we don't need to make a repo for it.
         return
 
     logger.debug("Creating repository {} on disk".format(instance.name))
-
-    # Make sure the task_id isn't set yet
-    if instance.task_id is not None:
-        logger.warning("task_id was already set...")
 
     # If it's fixture data, create it right away
     if raw:
@@ -172,15 +160,13 @@ def create_on_disk_repository(sender, instance, created, raw, **kwargs):
     # If there's no parent repo, just start the task
     if instance.forked_from is None:
         logger.debug("No parent. Creating {}".format(instance.name))
-        instance.task_id = setup_repo.delay(instance.pk)
-        instance.save()
+        setup_repo.delay(instance.pk)
         return
 
     # If the parent repo is ready on disk, we can fork it
     if instance.forked_from.created_on_disk:
         logger.debug("Parent ready. Creating {}".format(instance.name))
-        instance.task_id = setup_repo.delay(instance.pk)
-        instance.save()
+        setup_repo.delay(instance.pk)
         return
 
     # If the parent repo is not ready, and it STILL has NOT been
