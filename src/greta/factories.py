@@ -39,7 +39,7 @@ class RepoFactory(factory.django.DjangoModelFactory):
         return ''.join(chr(ord(x) % 26 + 65) for x in os.urandom(32))
 
     @classmethod
-    def _commit(cls, message, tree, parent_commits):
+    def _commit(cls, message, tree, parent_commit):
         """Creates a Commit instance, but doesn't actually add it to the
         repo's object store.
 
@@ -52,41 +52,37 @@ class RepoFactory(factory.django.DjangoModelFactory):
         commit.encoding = "UTF-8"
         commit.message = message
 
-        if parent_commits:
-            commit.parents = parent_commits
+        if parent_commit:
+            commit.parents = [parent_commit.id]
 
         return commit
 
     @classmethod
-    def _do_commits(cls, repo, num_commits=0):
+    def _do_commits(cls, repo, num_commits=1):
         """Add commits to the repo.
 
         """
-        if num_commits > 0:
+        if num_commits > 1:
             # If there are parent commits, we recurse to get the parent
             # commit's repository objects
-            blob, tree, parent_commit = cls._do_commits(repo, num_commits - 1)
-
-            # Update the contents of the file and tree
-            blob.data = cls._file_contents()
-            tree["file.txt"] = (0100644, blob.id)
+            parent_commit = cls._do_commits(repo, num_commits - 1)
         else:
             # Otherwise, we're just making the one commit, so we can
             # create the objects by hand.
 
             # No parent commits
-            parent_commit = []
+            parent_commit = None
 
-            # Create the file
-            blob = Blob.from_string(cls._file_contents())
+        # Create the file
+        blob = Blob.from_string(cls._file_contents())
 
-            # Create the path for it
-            tree = Tree()
-            tree.add("file.txt", 0100644, blob.id)
+        # Create the path for it
+        tree = Tree()
+        tree.add("file.txt", 0100644, blob.id)
 
         # Create a commit object
         msg = "Commit #{}".format(num_commits)
-        commit = cls._commit(msg, tree, [parent_commit])
+        commit = cls._commit(msg, tree, parent_commit)
 
         # Add the commit stuff to the repo's object store
         object_store = repo.object_store
@@ -97,7 +93,7 @@ class RepoFactory(factory.django.DjangoModelFactory):
         # Point 'master' to the commit
         repo.refs['refs/heads/master'] = commit.id
 
-        return (blob, tree, commit)
+        return commit
 
     @classmethod
     def _prepare(cls, create, **kwargs):
