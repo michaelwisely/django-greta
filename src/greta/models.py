@@ -36,6 +36,7 @@ class Repository(models.Model):
                                     related_name="forks",
                                     on_delete=models.SET_NULL)
     task_id = models.CharField(max_length=60, null=True, editable=False)
+    created_on_disk = models.BooleanField(default=False, editable=False)
 
     # Generic Foreign  key to an owning object
     owner_type = models.ForeignKey(ContentType, blank=True, null=True)
@@ -84,13 +85,7 @@ class Repository(models.Model):
         return self._filter_branch('refs/tags/')
 
     def is_ready(self):
-        if self.task is None:
-            return True
-        if self.task.ready():
-            self.task_id = None
-            self.save()
-            return True
-        return False
+        return self.created_on_disk
 
     def get_commit(self, ref):
         obj = self.repo[ref]
