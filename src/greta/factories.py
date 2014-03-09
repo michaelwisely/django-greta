@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 from dulwich.objects import Blob, Tree, Commit, parse_timezone
 from time import time
 
@@ -32,6 +33,42 @@ class RepoFactory(factory.django.DjangoModelFactory):
     FACTORY_FOR = Repository
 
     name = factory.Sequence(lambda n: 'repository-{0}.git'.format(n))
+
+    @classmethod
+    def create(cls, **kwargs):
+        # Since the create_on_disk_repository signal receiver makes a
+        # change to the Repository instance, we have to query the
+        # database to get the updated object before returning it.
+        obj = super(RepoFactory, cls).create(**kwargs)
+        return cls.FACTORY_FOR.objects.get(pk=obj.pk)
+
+    @classmethod
+    def _after_postgeneration(cls, obj, create, results=None):
+        # The DjangoModelFactory performs an additional save() at the
+        # end, that we don't want. This overrides that method and
+        # prevents the save from happening.
+        pass
+
+    @factory.post_generation
+    def num_commits(self, create, extracted, **kwargs):
+        """Creates "num_commits" commits in the Repository's on disk git
+        repo. You can specify the number of commits in the on disk
+        repo by passing a "num_commits" keyword argumetn to
+        RepoFactory.create()
+
+        """
+        if not create:
+            return
+
+        num_commits = extracted or 0
+        if num_commits > 0:
+            logger.debug("Adding commits to {}".format(self.name))
+            if not create:
+                raise Exception("Cannot add commits if repo not created")
+
+            RepoFactory._do_commits(self.repo, num_commits)
+
+        return extracted or 0
 
     @classmethod
     def _file_contents(cls):
@@ -94,15 +131,3 @@ class RepoFactory(factory.django.DjangoModelFactory):
         repo.refs['refs/heads/master'] = commit.id
 
         return commit
-
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        num_commits = kwargs.pop('num_commits', 0)
-        repo = super(RepoFactory, cls)._prepare(create, **kwargs)
-        if num_commits > 0:
-            logger.debug("Adding commits to {}".format(repo.name))
-            if not create:
-                raise Exception("Cannot add commits if repo not created")
-            repo.save()
-            RepoFactory._do_commits(repo.repo, num_commits)
-        return repo
