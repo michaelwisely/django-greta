@@ -9,3 +9,8 @@
     <h1>{{ repo.name }} <small>{{ ref|pretty_ref|truncatechars:15 }}</small></h1>
   </div>
 {% endblock %}
+
+
+{% block content %}
+  {% block main_content %}{% endblock %}
+{% endblock %}
