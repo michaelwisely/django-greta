@@ -7,7 +7,7 @@ default: bin/buildout
 
 bin/buildout: bootstrap.py
 	mkdir -p var/
-	python bootstrap.py -v 2.1.1
+	python bootstrap.py
 
 bootstrap.py:
 	wget $(BOOTSTRAP_URL)
