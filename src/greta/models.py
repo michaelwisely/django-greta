@@ -102,7 +102,7 @@ class Repository(models.Model):
 
     def _subtree(self, tree, tree_path=''):
         tree_dict = OrderedDict(
-            (path, sha) for _, path, sha in tree.entries()
+            (path, sha) for path, _mode, sha in tree.iteritems(name_order=True)
         )
         if tree_path:
             top_dir, _, tree_path = tree_path.partition(os.path.sep)
