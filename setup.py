@@ -18,5 +18,6 @@ setup(name="django-greta",
                         'django-celery==3.1.9',
                         'South==1.0.2',
                         'jsonschema==2.4.0',
+                        'mistune==0.5.1',
                         ],
       )
