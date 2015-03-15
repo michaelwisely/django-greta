@@ -40,7 +40,7 @@ class GretaMixin(PermissionRequiredMixin, SingleObjectMixin):
             context = RequestContext(self.request, {})
             return render_to_response("greta/repository_not_ready.html",
                                       context)
-        self.full_ref = self.validate_ref(self.kwargs['ref'])
+        self.full_ref = self.validate_ref(self.kwargs['ref']).encode('latin-1')
         return super(GretaMixin, self).get(*args, **kwargs)
 
     def validate_ref(self, ref):
