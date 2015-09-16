@@ -122,12 +122,6 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'project.urls'
 
 INSTALLED_APPS = (
-    # Django Admin Tools
-    'admin_tools',
-    'admin_tools.theming',
-    'admin_tools.menu',
-    'admin_tools.dashboard',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -135,6 +129,14 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Django Admin Tools
+    'admin_tools',
+    'admin_tools.theming',
+    'admin_tools.menu',
+    'admin_tools.dashboard',
+
+    'greta',
 
     # django-crispy-forms
     'crispy_forms',
@@ -145,8 +147,6 @@ INSTALLED_APPS = (
 
     'django_extensions',
     'guardian',
-
-    'greta',
 )
 
 LOGGING = {
