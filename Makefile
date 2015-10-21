@@ -16,7 +16,7 @@ bootstrap.py:
 db:
 	rm -f var/db/*.db
 	rm -rf var/repos/*.git
-	python bin/django syncdb --noinput
+	python bin/django migrate --no-initial-data
 	python bin/django migrate
 	python bin/django loaddata project/fixtures/*_dev_data.yaml
 

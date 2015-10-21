@@ -3,7 +3,11 @@ from django.db.models.signals import post_save, post_delete
 from django.conf import settings
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+
+try:
+    from django.contrib.contenttypes.fields import GenericForeignKey
+except ImportError:
+    from django.contrib.contenttypes.generic import GenericForeignKey
 
 from .validators import repo_name_validator
 from .utils import Commiterator, split_diff
@@ -40,7 +44,7 @@ class Repository(models.Model):
     # Generic Foreign  key to an owning object
     owner_type = models.ForeignKey(ContentType, blank=True, null=True)
     owner_id = models.PositiveIntegerField(blank=True, null=True)
-    owner = generic.GenericForeignKey('owner_type', 'owner_id')
+    owner = GenericForeignKey('owner_type', 'owner_id')
 
     def __init__(self, *args, **kwargs):
         self._dulwich_repo = None

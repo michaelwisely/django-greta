@@ -4,7 +4,6 @@ from project.settings import *
 SITE_ID = 1
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 # Testing settings
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

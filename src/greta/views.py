@@ -96,6 +96,8 @@ class RepositoryList(ListView):
 
 
 class RedirectToDefaultBranch(RedirectView):
+    permanent = True
+
     def get_redirect_url(self, **kwargs):
         repo = get_object_or_404(Repository, pk=self.kwargs['pk'])
         return repo.get_absolute_url()
